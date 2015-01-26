@@ -82,7 +82,7 @@ var Overlay = {
 		Overlay.onAfterHide = null;
 	},
 	
-	show:function(contentID, offsetX, offsetY, width, height){
+	show:function(contentID, width, height){
 		if (Overlay.content != null){
 			Overlay.hide();
 		}
@@ -119,43 +119,31 @@ var Overlay = {
 		
 		var content = $("#" + contentID);
 		if (typeof width === typeof undefined){
-			width = content.css("width");
-			content.data("width", width);
-			if (parseInt(width) == 0){
-				content.data("width", "");
-				hiddenContainer.show();
-				width = content.width();
-				if (width == parseInt(width)){
-					width += "px";
-				}
-				hiddenContainer.hide();
-			}
-		}
-		frame.css("width", width);
-		content.css("width", "100%");
-		
-		var fixedHeight = false;
-		if (typeof height === typeof undefined){
-			height = content.css("height");
-			content.data("height", height);
-			if (parseInt(height) == 0){
-				content.data("height", "");
-				hiddenContainer.show();
-				height = content.height();
-				if (height == parseInt(height)){
-					height += "px";
-				}
-				hiddenContainer.hide();
+			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
+				width = content[0].currentStyle.width;
 			} else {
-				fixedHeight = true;
+				width = content.css("width");
 			}
-		} else {
-			fixedHeight = true;
 		}
-		if (fixedHeight){
+		if (parseInt(width)){
+			frame.css("width", width);
+			content.data("width", width);
+			content.css("width", "100%");
+		}
+		
+		var content = $("#" + contentID);
+		if (typeof height === typeof undefined){
+			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
+				height = content[0].currentStyle.height;
+			} else {
+				height = content.css("height");
+			}
+		}
+		if (parseInt(height)){
 			frame.css("height", height);
+			content.data("height", height);
+			content.css("height", "100%");
 		}
-		content.css("height", "100%");
 		Overlay.content = content;
 		
 		frame.append(close);
@@ -163,17 +151,6 @@ var Overlay = {
 		container.append(background);
 		container.append(frame);
 		$("body").append(container);
-		
-		if (typeof offsetX === typeof undefined){
-			var w = parseInt(width);
-			offsetX = width.toString().replace(w, (w * -0.5));
-		}
-		frame.css("margin-left", offsetX);
-		if (typeof offsetY === typeof undefined){
-			var h = parseInt(height);
-			offsetY = height.toString().replace(h, (h * -0.5));
-		}
-		frame.css("margin-top", offsetY);
 		
 		if (Overlay.onAfterShow){
 			Overlay.onAfterShow();
