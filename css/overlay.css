@@ -1,0 +1,60 @@
+#overlays {
+  display: none;
+}
+#myOverlay1 {
+  width: 640px;
+  height: 390px;
+}
+#myOverlay2 {
+  width: 50%;
+  height: 500px;
+}
+/* -=-=-=-=-=-=-=-=-=-= BEGIN OVERLAY =-=-=-=-=-=-=-=-=-=- */
+#overlayContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 100%;
+  height: 100%;
+}
+#overlayContainer #overlayBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RkU1MjA2NDk1OTJGMTFFNDhEN0JENkMwMTkzMjc4NUUiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RkU1MjA2NEE1OTJGMTFFNDhEN0JENkMwMTkzMjc4NUUiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpGRTUyMDY0NzU5MkYxMUU0OEQ3QkQ2QzAxOTMyNzg1RSIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpGRTUyMDY0ODU5MkYxMUU0OEQ3QkQ2QzAxOTMyNzg1RSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pn7P3SYAAAAQSURBVHjaYvj///8ugAADAAm2A7gszpAaAAAAAElFTkSuQmCC");
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+#overlayContainer #overlayFrame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-color: #F5F5F5;
+  padding: 16px;
+  border-radius: 8px;
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  box-shadow: 0 0 16px #000000;
+  -moz-box-shadow: 0 0 16px #000000;
+  -webkit-box-shadow: 0 0 16px #000000;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+}
+#overlayContainer #overlayFrame #btnClose {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  right: -12px;
+  top: -12px;
+}
+#overlayContainer #overlayFrame #btnClose:after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-image: url(../images/btn_close.png);
+}
+/* -=-=-=-=-=-=-=-=-=-= END OVERLAY =-=-=-=-=-=-=-=-=-=- */
