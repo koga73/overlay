@@ -36,6 +36,15 @@ var Overlay = {
 		var hiddenContainer = $("#" + hiddenContainerID);
 		hiddenContainer.hide();
 		Overlay.hiddenContainer = hiddenContainer;
+		
+		Overlay.container = $("<div id='overlayContainer'></div>");
+		Overlay.background = $("<div id='overlayBackground'></div>");
+		Overlay.frame = $("<div id='overlayFrame'></div>");
+		Overlay.close = $("<a id='btnClose' href='#close'></a>");
+		
+		Overlay.frame.append(Overlay.close);
+		Overlay.container.append(Overlay.background);
+		Overlay.container.append(Overlay.frame);
 	},
 	
 	destroy:function(){
@@ -46,12 +55,12 @@ var Overlay = {
 			close.off("click", Overlay.handler_close_clicked);
 			close.remove();
 		}
-		Overlay.close = null;		
+		Overlay.close = null;
 		
 		var content = Overlay.content;
 		if (content){
-			content.css("width", Overlay.content.data("width"));
-			content.css("height", Overlay.content.data("height"));
+			content.css("width", content.data("width"));
+			content.css("height", content.data("height"));
 			content.remove();
 			hiddenContainer.append(content);
 		}
@@ -59,6 +68,10 @@ var Overlay = {
 		
 		var frame = Overlay.frame;
 		if (frame){
+			frame.css("margin-top", "");
+			frame.css("margin-left", "");
+			frame.css("width", "");
+			frame.css("height", "");
 			frame.remove();
 		}
 		Overlay.frame = null;
@@ -82,42 +95,37 @@ var Overlay = {
 		Overlay.onAfterHide = null;
 	},
 	
-	show:function(contentID, width, height){
+	show:function(contentID, options){
 		if (Overlay.content != null){
 			Overlay.hide();
 		}
 		if (Overlay.onBeforeShow){
 			Overlay.onBeforeShow();
 		}
+		
+		var width, height, offsetX, offsetY;
+		if (typeof options !== typeof undefined){
+			if (typeof options.width !== typeof undefined){
+				width = options.width;
+			}
+			if (typeof options.height !== typeof undefined){
+				height = options.height;
+			}
+			if (typeof options.offsetX !== typeof undefined){
+				offsetX = options.offsetX;
+			}
+			if (typeof options.offsetY !== typeof undefined){
+				offsetY = options.offsetY;
+			}
+		}
+		
 		var hiddenContainer = Overlay.hiddenContainer;
-		
 		var container = Overlay.container;
-		if (!container){
-			container = $("<div id='overlayContainer'></div>");
-			Overlay.container = container;
-		}
-		
 		var background = Overlay.background;
-		if (!background){
-			background = $("<div id='overlayBackground'></div>");
-			Overlay.background = background;
-		}
-		background.on("click", Overlay.handler_background_click);
-		
 		var frame = Overlay.frame;
-		if (!frame){
-			frame = $("<div id='overlayFrame'></div>");
-			Overlay.frame = frame;
-		}
-		
 		var close = Overlay.close;
-		if (!close){
-			close = $("<a id='btnClose' href='#close'></a>");
-			Overlay.close = close;		
-		}
-		close.on("click", Overlay.handler_close_clicked);
-		
 		var content = $("#" + contentID);
+		
 		if (typeof width === typeof undefined){
 			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
 				width = content[0].currentStyle.width;
@@ -130,8 +138,6 @@ var Overlay = {
 			content.data("width", width);
 			content.css("width", "100%");
 		}
-		
-		var content = $("#" + contentID);
 		if (typeof height === typeof undefined){
 			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
 				height = content[0].currentStyle.height;
@@ -144,12 +150,18 @@ var Overlay = {
 			content.data("height", height);
 			content.css("height", "100%");
 		}
-		Overlay.content = content;
+		if (typeof offsetX !== typeof undefined){
+			frame.css("left", offsetX);
+		}
+		if (typeof offsetY !== typeof undefined){
+			frame.css("top", offsetY);
+		}
 		
-		frame.append(close);
+		Overlay.content = content;
+		background.on("click", Overlay.handler_background_click);
+		close.on("click", Overlay.handler_close_clicked);
+		
 		frame.append(content);
-		container.append(background);
-		container.append(frame);
 		$("body").append(container);
 		
 		if (Overlay.onAfterShow){
@@ -157,8 +169,8 @@ var Overlay = {
 		}
 	},
 	
-	hide:function(){
-		if (Overlay.onBeforeHide){
+	hide:function(ignoreCallbacks){
+		if (Overlay.onBeforeHide && ignoreCallbacks !== true){
 			Overlay.onBeforeHide();
 		}
 		var hiddenContainer = Overlay.hiddenContainer;
@@ -166,7 +178,14 @@ var Overlay = {
 		var close = Overlay.close;
 		if (close){
 			close.off("click", Overlay.handler_close_clicked);
-			close.remove();
+		}
+		
+		var frame = Overlay.frame;
+		if (frame){
+			frame.css("margin-top", "");
+			frame.css("margin-left", "");
+			frame.css("width", "");
+			frame.css("height", "");
 		}
 		
 		var content = Overlay.content;
@@ -178,19 +197,9 @@ var Overlay = {
 		}
 		Overlay.content = null;
 		
-		var frame = Overlay.frame;
-		if (frame){
-			frame.css("margin-top", "");
-			frame.css("margin-left", "");
-			frame.css("width", "");
-			frame.css("height", "");
-			frame.remove();
-		}
-		
 		var background = Overlay.background;
 		if (background){
 			background.off("click", Overlay.handler_background_click);
-			background.remove();
 		}
 		
 		var container = Overlay.container;
@@ -198,7 +207,7 @@ var Overlay = {
 			container.remove();
 		}
 		
-		if (Overlay.onAfterHide){
+		if (Overlay.onAfterHide && ignoreCallbacks !== true){
 			Overlay.onAfterHide();
 		}
 	},
