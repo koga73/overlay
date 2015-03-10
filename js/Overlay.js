@@ -1,5 +1,5 @@
 /*
-* Overlay v1.0.0 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.0 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -19,208 +19,423 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-var Overlay = {
-	hiddenContainer:null,
-	container:null,
-	background:null,
-	content:null,
-	frame:null,
-	close:null,
+var Overlay = (function(){
+	var _instance;
 	
-	onBeforeShow:null,
-	onAfterShow:null,
-	onBeforeHide:null,
-	onAfterHide:null,
+	var _vars = {
+		onBeforeShow:null,
+		onAfterShow:null,
+		onBeforeHide:null,
+		onAfterHide:null,
+		
+		_hiddenContainer:null,
+		_container:null,
+		_background:null,
+		_content:null,
+		_frame:null,
+		_close:null
+	};
 	
-	initialize:function(hiddenContainerID){
-		var hiddenContainer = $("#" + hiddenContainerID);
-		hiddenContainer.hide();
-		Overlay.hiddenContainer = hiddenContainer;
+	var _methods = {
+		initialize:function(hiddenContainerID){
+			_vars._hiddenContainer = document.getElementById(hiddenContainerID);
+			
+			var container = document.createElement("div");
+			container.setAttribute("id", "overlayContainer");
+			_vars._container = container;
+			
+			var background = document.createElement("div");
+			background.setAttribute("id", "overlayBackground");
+			_vars._background = background;
+			
+			var frame = document.createElement("div");
+			frame.setAttribute("id", "overlayFrame");
+			_vars._frame = frame;
+			
+			var close = document.createElement("a");
+			close.setAttribute("id", "overlayClose");
+			close.setAttribute("href", "#Close");
+			_vars._close = close;
+			
+			frame.appendChild(close);
+			container.appendChild(background);
+			container.appendChild(frame);
+		},
 		
-		Overlay.container = $("<div id='overlayContainer'></div>");
-		Overlay.background = $("<div id='overlayBackground'></div>");
-		Overlay.frame = $("<div id='overlayFrame'></div>");
-		Overlay.close = $("<a id='btnClose' href='#close'></a>");
-		
-		Overlay.frame.append(Overlay.close);
-		Overlay.container.append(Overlay.background);
-		Overlay.container.append(Overlay.frame);
-	},
-	
-	destroy:function(){
-		Overlay.hiddenContainer = null;
-		
-		var close = Overlay.close;
-		if (close){
-			close.off("click", Overlay.handler_close_clicked);
-			close.remove();
-		}
-		Overlay.close = null;
-		
-		var content = Overlay.content;
-		if (content){
-			content.css("width", content.data("width"));
-			content.css("height", content.data("height"));
-			content.remove();
-			hiddenContainer.append(content);
-		}
-		Overlay.content = null;
-		
-		var frame = Overlay.frame;
-		if (frame){
-			frame.css("margin-top", "");
-			frame.css("margin-left", "");
-			frame.css("width", "");
-			frame.css("height", "");
-			frame.remove();
-		}
-		Overlay.frame = null;
-		
-		var background = Overlay.background;
-		if (background){
-			background.off("click", Overlay.handler_background_click);
-			background.remove();
-		}
-		Overlay.background = null;
-		
-		var container = Overlay.container;
-		if (container){
-			container.remove();
-		}
-		Overlay.container = null;
-		
-		Overlay.onBeforeShow = null;
-		Overlay.onAfterShow = null;
-		Overlay.onBeforeHide = null;
-		Overlay.onAfterHide = null;
-	},
-	
-	show:function(contentID, options){
-		if (Overlay.content != null){
-			Overlay.hide();
-		}
-		if (Overlay.onBeforeShow){
-			Overlay.onBeforeShow();
-		}
-		
-		var width, height, offsetX, offsetY;
-		if (typeof options !== typeof undefined){
-			if (typeof options.width !== typeof undefined){
-				width = options.width;
+		destroy:function(){
+			_vars._hiddenContainer = null;
+			
+			var close = _vars._close;
+			if (close){
+				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
 			}
-			if (typeof options.height !== typeof undefined){
-				height = options.height;
+			_vars._close = null;
+			
+			var frame = _vars._frame;
+			if (frame){
+				frame.style.marginTop = "";
+				frame.style.marginLeft = "";
+				frame.style.width = "";
+				frame.style.height = "";
 			}
-			if (typeof options.offsetX !== typeof undefined){
-				offsetX = options.offsetX;
+			_vars._frame = null;
+			
+			var content = _vars._content;
+			if (content){
+				content.style.width = content.data["width"];
+				content.style.height = content.data["height"];
+				content.parentNode.removeChild(content);
+				hiddenContainer.appendChild(content);
 			}
-			if (typeof options.offsetY !== typeof undefined){
-				offsetY = options.offsetY;
+			_vars._content = null;
+			
+			var background = _vars._background;
+			if (background){
+				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
-		}
-		
-		var hiddenContainer = Overlay.hiddenContainer;
-		var container = Overlay.container;
-		var background = Overlay.background;
-		var frame = Overlay.frame;
-		var close = Overlay.close;
-		var content = $("#" + contentID);
-		
-		if (typeof width === typeof undefined){
-			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-				width = content[0].currentStyle.width;
-			} else {
-				width = content.css("width");
+			_vars._background = null;
+			
+			var container = _vars._container;
+			if (container && container.parentNode){
+				container.parentNode.removeChild(container);
 			}
-		}
-		if (parseInt(width)){
-			frame.css("width", width);
-			content.data("width", width);
-			content.css("width", "100%");
-		}
-		if (typeof height === typeof undefined){
-			if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-				height = content[0].currentStyle.height;
-			} else {
-				height = content.css("height");
+			_vars._container = null;
+		},
+		
+		show:function(contentID, options){
+			if (_vars._content != null){
+				_instance.hide();
 			}
-		}
-		if (parseInt(height)){
-			frame.css("height", height);
-			content.data("height", height);
-			content.css("height", "100%");
-		}
-		if (typeof offsetX !== typeof undefined){
-			frame.css("left", offsetX);
-		}
-		if (typeof offsetY !== typeof undefined){
-			frame.css("top", offsetY);
-		}
+			if (_instance.onBeforeShow){
+				_instance.onBeforeShow();
+			}
+			
+			var width, height, offsetX, offsetY;
+			if (typeof options !== typeof undefined){
+				if (typeof options.width !== typeof undefined){
+					width = options.width;
+				}
+				if (typeof options.height !== typeof undefined){
+					height = options.height;
+				}
+				if (typeof options.offsetX !== typeof undefined){
+					offsetX = options.offsetX;
+				}
+				if (typeof options.offsetY !== typeof undefined){
+					offsetY = options.offsetY;
+				}
+			}
+			
+			var hiddenContainer = _vars._hiddenContainer;
+			var container = _vars._container;
+			var background = _vars._background;
+			var frame = _vars._frame;
+			var close = _vars._close;
+			
+			var content = document.getElementById(contentID);
+			content.data = content.data || {};
+			if (typeof width === typeof undefined){
+				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
+					width = content[0].currentStyle.width;
+				} else {
+					width = window.getComputedStyle(content).width;
+				}
+			}
+			if (parseInt(width)){
+				frame.style.width = width;
+				content.data["width"] = width;
+				content.style.width = "100%";
+			}
+			if (typeof height === typeof undefined){
+				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
+					height = content[0].currentStyle.height;
+				} else {
+					height = window.getComputedStyle(content).height;
+				}
+			}
+			if (parseInt(height)){
+				frame.style.height = height;
+				content.data["height"] = height;
+				content.style.height = "100%";
+			}
+			if (typeof offsetX !== typeof undefined){
+				frame.style.left = offsetX;
+			}
+			if (typeof offsetY !== typeof undefined){
+				frame.style.top = offsetY;
+			}
+			_vars._content = content;
+			
+			OOP.addEventListener(background, "click", _methods._handler_background_click);
+			OOP.addEventListener(close, "click", _methods._handler_close_clicked);
+			
+			frame.appendChild(content);
+			document.body.appendChild(container);
+			
+			if (_instance.onAfterShow){
+				_instance.onAfterShow();
+			}
+		},
 		
-		Overlay.content = content;
-		background.on("click", Overlay.handler_background_click);
-		close.on("click", Overlay.handler_close_clicked);
+		hide:function(){
+			if (_instance.onBeforeHide){
+				_instance.onBeforeHide();
+			}
+			var hiddenContainer = _vars._hiddenContainer;
+			
+			var close = _vars._close;
+			if (close){
+				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
+			}
+			
+			var frame = _vars._frame;
+			if (frame){
+				frame.style.marginTop = "";
+				frame.style.marginLeft = "";
+				frame.style.width = "";
+				frame.style.height = "";
+			}
+			
+			var content = _vars._content;
+			if (content){
+				content.style.width = content.data["width"];
+				content.style.height = content.data["height"];
+				content.parentNode.removeChild(content);
+				hiddenContainer.appendChild(content);
+			}
+			_vars._content = null;
+			
+			var background = _vars._background;
+			if (background){
+				OOP.removeEventListener(background, "click", _methods._handler_background_click);
+			}
+			
+			var container = _vars._container;
+			if (container){
+				container.parentNode.removeChild(container);
+			}
+			
+			if (_instance.onAfterHide){
+				_instance.onAfterHide();
+			}
+		},
 		
-		frame.append(content);
-		$("body").append(container);
+		_handler_close_clicked:function(evt){
+			evt.preventDefault();
+			evt.stopImmediatePropagation();
+			_instance.hide();
+			return false;
+		},
 		
-		if (Overlay.onAfterShow){
-			Overlay.onAfterShow();
+		_handler_background_click:function(evt){
+			evt.preventDefault();
+			evt.stopImmediatePropagation();
+			_instance.hide();
+			return false;
 		}
-	},
+	};
 	
-	hide:function(ignoreCallbacks){
-		if (Overlay.onBeforeHide && ignoreCallbacks !== true){
-			Overlay.onBeforeHide();
-		}
-		var hiddenContainer = Overlay.hiddenContainer;
+	_instance = {
+		onBeforeShow:_vars.onBeforeShow,
+		onAfterShow:_vars.onAfterShow,
+		onBeforeHide:_vars.onBeforeHide,
+		onAfterHide:_vars.onAfterHide,
 		
-		var close = Overlay.close;
-		if (close){
-			close.off("click", Overlay.handler_close_clicked);
-		}
+		initialize:_methods.initialize,
+		destroy:_methods.destroy,
+		hide:_methods.hide,
+		show:_methods.show
+	};
+	return _instance;
+})();
+
+//OOP dependency for events
+if (!OOP){
+	var OOP = (function(){
+		var _methods = {
+			//Safe cross-browser event (use 'new OOP.Event()')
+			event:function(type, data){
+				var event = null;
+				try { //IE catch
+					event = new CustomEvent(type); //Non-IE
+				} catch (ex){
+					if(document.createEventObject) { //IE
+						event = document.createEventObject("Event");
+						if (event.initCustomEvent){
+							event.initCustomEvent(type, true, true);
+						}
+					} else { //Custom
+						event = {};
+					}
+				}
+				event._type = type;
+				event._data = data;
+				return event;
+			},
+
+			//Safe cross-browser way to listen for one or more events
+			//Pass obj, comma delimeted event types, and a handler
+			addEventListener:function(obj, types, handler){
+				if(!obj._eventHandlers) {
+					obj._eventHandlers = {};
+				}
+				types = types.split(",");
+				var typesLen = types.length;
+				for (var i = 0; i < typesLen; i++){
+					var type = types[i].trim();
+					if (obj.addEventListener){ //Standard
+						handler = _methods._addEventHandler(obj, type, handler);
+						obj.addEventListener(type, handler, false);
+					} else if(obj.attachEvent){ //IE
+						var attachHandler = function(){
+							handler(window.event);
+						}
+						attachHandler.handler = handler; //Store reference to original handler
+						attachHandler = _methods._addEventHandler(obj, type, attachHandler);
+						obj.attachEvent("on" + type, attachHandler);
+					} else { //Custom
+						obj.addEventListener = _methods._addEventListener;
+						obj.addEventListener(type, handler);
+					}
+				}
+			},
+
+			//This is the custom method that gets added to objects
+			_addEventListener:function(type, handler){
+				handler._isCustom = true;
+				_methods._addEventHandler(this, type, handler);
+			},
+
+			//Stores and returns handler reference
+			_addEventHandler:function(obj, type, eventHandler){
+				if(!obj._eventHandlers[type]) {
+					obj._eventHandlers[type] = [];
+				}
+				var eventHandlers = obj._eventHandlers[type];
+				var eventHandlersLen = eventHandlers.length;
+				for(var i = 0; i < eventHandlersLen; i++) {
+					if(eventHandlers[i] === eventHandler) {
+						return eventHandler;
+					} else if(eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
+						return eventHandlers[i];
+					}
+				}
+				eventHandlers.push(eventHandler);
+				return eventHandler;
+			},
+
+			//Safe cross-browser way to listen for one or more events
+			//Pass obj, comma delimeted event types, and optionally handler
+			//If no handler is passed all handlers for each event type will be removed
+			removeEventListener:function(obj, types, handler){
+				if(!obj._eventHandlers) {
+					obj._eventHandlers = {};
+				}
+				types = types.split(",");
+				var typesLen = types.length;
+				for (var i = 0; i < typesLen; i++){
+					var type = types[i].trim();
+					var handlers;
+					if(typeof handler === typeof undefined) {
+						handlers = _vars._eventHandlers[type];
+					} else {
+						handlers = [handler];
+					}
+					var handlersLen = handlers.length;
+					for (var j = 0; j < handlersLen; j++){
+						var handler = handlers[j];
+						if (obj.removeEventListener){ //Standard
+							handler = _methods._removeEventHandler(obj, type, handler);
+							obj.removeEventListener(type, handler, false);
+						} else if(obj.detachEvent){ //IE
+							handler = _methods._removeEventHandler(obj, type, handler);
+							obj.detachEvent("on" + type, handler);
+						} else { //Custom
+							obj.removeEventListener = _methods._removeEventListener;
+							obj.removeEventListener(type, handler);
+						}
+					}
+				}
+			},
+
+			//This is the custom method that gets added to objects
+			//Pass comma delimeted event types, and optionally handler
+			//If no handler is passed all handlers for each event type will be removed
+			_removeEventListener:function(types, handler) {
+				types = types.split(",");
+				var typesLen = types.length;
+				for (var i = 0; i < typesLen; i++){
+					var type = types[i].trim();
+					var handlers;
+					if(typeof handler === typeof undefined) {
+						handlers = this._eventHandlers[type];
+					} else {
+						handlers = [handler];
+					}
+					var handlersLen = handlers.length;
+					for (var j = 0; j < handlersLen; j++){
+						var handler = handlers[j];
+						handler._isCustom = false;
+						_methods._removeEventHandler(this, type, handler);
+					}
+				}
+			},
+
+			//Removes and returns handler reference
+			_removeEventHandler:function(obj, type, eventHandler) {
+				if(!obj._eventHandlers[type]) {
+					obj._eventHandlers[type] = [];
+				}
+				var eventHandlers = obj._eventHandlers[type];
+				var eventHandlersLen = eventHandlers.length;
+				for(var i = 0; i < eventHandlersLen; i++) {
+					if(eventHandlers[i] === eventHandler) {
+						return eventHandlers.splice(i, 1);
+					} else if(eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
+						return eventHandlers.splice(i, 1);
+					}
+				}
+			},
+
+			//Safe cross-browser way to dispatch an event
+			dispatchEvent:function(obj, event){
+				if(!obj._eventHandlers) {
+					obj._eventHandlers = {};
+				}
+				if(obj.dispatchEvent){ //Standard
+					obj.dispatchEvent(event);
+				} else if(obj.fireEvent) { //IE
+					obj.fireEvent("on" + type, event);
+				} else { //Custom
+					obj.dispatchEvent = _methods._dispatchEvent;
+					obj.dispatchEvent(event);
+				}
+			},
+
+			//This is the custom method that gets added to objects
+			_dispatchEvent:function(event) {
+				_methods._dispatchEventHandlers(this, event);
+			},
+
+			//Dispatches an event to handler references
+			_dispatchEventHandlers: function(obj, event) {
+				var eventHandlers = obj._eventHandlers[event._type];
+				if(!eventHandlers){
+					return;
+				}
+				var eventHandlersLen = eventHandlers.length;
+				for(var i = 0; i < eventHandlersLen; i++) {
+					eventHandlers[i](event);
+				}
+			}
+		};
 		
-		var frame = Overlay.frame;
-		if (frame){
-			frame.css("margin-top", "");
-			frame.css("margin-left", "");
-			frame.css("width", "");
-			frame.css("height", "");
-		}
-		
-		var content = Overlay.content;
-		if (content){
-			content.css("width", content.data("width"));
-			content.css("height", content.data("height"));
-			content.remove();
-			hiddenContainer.append(content);
-		}
-		Overlay.content = null;
-		
-		var background = Overlay.background;
-		if (background){
-			background.off("click", Overlay.handler_background_click);
-		}
-		
-		var container = Overlay.container;
-		if (container){
-			container.remove();
-		}
-		
-		if (Overlay.onAfterHide && ignoreCallbacks !== true){
-			Overlay.onAfterHide();
-		}
-	},
-	
-	handler_close_clicked:function(evt){
-		evt.stopImmediatePropagation();
-		Overlay.hide();
-		return false;
-	},
-	
-	handler_background_click:function(evt){
-		evt.stopImmediatePropagation();
-		Overlay.hide();
-		return false;
-	}
-};
+		return {
+			Event:_methods.event,
+			
+			addEventListener:_methods.addEventListener,
+			removeEventListener:_methods.removeEventListener,
+			dispatchEvent:_methods.dispatchEvent,
+		};
+	})();
+}

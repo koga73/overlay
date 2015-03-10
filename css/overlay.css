@@ -51,14 +51,14 @@
   -webkit-box-shadow: 0 0 16px #000000;
   text-align: left;
 }
-#overlayContainer #overlayFrame #btnClose {
+#overlayContainer #overlayFrame #overlayClose {
   position: absolute;
   width: 32px;
   height: 32px;
   right: -12px;
   top: -12px;
 }
-#overlayContainer #overlayFrame #btnClose:after {
+#overlayContainer #overlayFrame #overlayClose:after {
   content: "";
   display: block;
   width: 100%;
