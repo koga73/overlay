@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.0 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.1 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -54,9 +54,8 @@ var Overlay = (function(){
 			frame.setAttribute("id", "overlayFrame");
 			_vars._frame = frame;
 			
-			var close = document.createElement("a");
+			var close = document.createElement("button");
 			close.setAttribute("id", "overlayClose");
-			close.setAttribute("href", "#Close");
 			_vars._close = close;
 			
 			frame.appendChild(close);
@@ -84,8 +83,13 @@ var Overlay = (function(){
 			
 			var content = _vars._content;
 			if (content){
-				content.style.width = content.data["width"];
-				content.style.height = content.data["height"];
+				if (typeof content.overlayData["width"] !== typeof undefined){
+					content.style.width = content.overlayData["width"];
+				}
+				if (typeof content.overlayData["height"] !== typeof undefined){
+					content.style.height = content.overlayData["height"];
+				}
+				content.overlayData = null;
 				content.parentNode.removeChild(content);
 				hiddenContainer.appendChild(content);
 			}
@@ -134,7 +138,7 @@ var Overlay = (function(){
 			var close = _vars._close;
 			
 			var content = document.getElementById(contentID);
-			content.data = content.data || {};
+			content.overlayData = content.overlayData || {};
 			if (typeof width === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
 					width = content.currentStyle.width;
@@ -144,7 +148,7 @@ var Overlay = (function(){
 			}
 			if (parseInt(width)){
 				frame.style.width = width;
-				content.data["width"] = width;
+				content.overlayData["width"] = width;
 				content.style.width = "100%";
 			}
 			if (typeof height === typeof undefined){
@@ -156,7 +160,7 @@ var Overlay = (function(){
 			}
 			if (parseInt(height)){
 				frame.style.height = height;
-				content.data["height"] = height;
+				content.overlayData["height"] = height;
 				content.style.height = "100%";
 			}
 			if (typeof offsetX !== typeof undefined){
@@ -172,9 +176,14 @@ var Overlay = (function(){
 			
 			frame.appendChild(content);
 			document.body.appendChild(container);
-			requestAnimationFrame(function(){
-				container.setAttribute("class", "visible");
-			});
+			
+			if (window.requestAnimationFrame){
+				requestAnimationFrame(function(){
+					container.setAttribute("class", "visible");
+				});
+			} else {
+				container.setAttribute("class", "visible");	
+			}
 			
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
 		},
@@ -206,8 +215,13 @@ var Overlay = (function(){
 					
 					var content = _vars._content;
 					if (content){
-						content.style.width = content.data["width"];
-						content.style.height = content.data["height"];
+						if (typeof content.overlayData["width"] !== typeof undefined){
+							content.style.width = content.overlayData["width"];
+						}
+						if (typeof content.overlayData["height"] !== typeof undefined){
+							content.style.height = content.overlayData["height"];
+						}
+						content.overlayData = null;
 						content.parentNode.removeChild(content);
 						_vars._hiddenContainer.appendChild(content);
 					}
@@ -222,15 +236,11 @@ var Overlay = (function(){
 		},
 		
 		_handler_close_clicked:function(evt){
-			evt.preventDefault();
-			evt.stopImmediatePropagation();
 			_instance.hide();
 			return false;
 		},
 		
 		_handler_background_click:function(evt){
-			evt.preventDefault();
-			evt.stopImmediatePropagation();
 			_instance.hide();
 			return false;
 		}
@@ -316,7 +326,7 @@ if (!OOP){
 				types = types.split(",");
 				var typesLen = types.length;
 				for (var i = 0; i < typesLen; i++){
-					var type = types[i].trim();
+					var type = types[i];
 					if (obj.addEventListener){ //Standard
 						handler = _methods._addEventHandler(obj, type, handler);
 						obj.addEventListener(type, handler);
@@ -368,7 +378,7 @@ if (!OOP){
 				types = types.split(",");
 				var typesLen = types.length;
 				for (var i = 0; i < typesLen; i++){
-					var type = types[i].trim();
+					var type = types[i];
 					var handlers;
 					if (typeof handler === typeof undefined){
 						handlers = obj._eventHandlers[type];
@@ -380,7 +390,6 @@ if (!OOP){
 						var handler = handlers[j];
 						if (obj.removeEventListener){ //Standard
 							handler = _methods._removeEventHandler(obj, type, handler);
-							console.log(handler);
 							obj.removeEventListener(type, handler);
 						} else if (obj.detachEvent){ //IE
 							handler = _methods._removeEventHandler(obj, type, handler);
@@ -400,7 +409,7 @@ if (!OOP){
 				types = types.split(",");
 				var typesLen = types.length;
 				for (var i = 0; i < typesLen; i++){
-					var type = types[i].trim();
+					var type = types[i];
 					var handlers;
 					if (typeof handler === typeof undefined){
 						handlers = this._eventHandlers[type];
