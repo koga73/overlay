@@ -22,12 +22,14 @@
 var Overlay = (function(){
 	var _instance;
 	
+	var _events = {
+		EVENT_BEFORE_SHOW:"beforeshow",
+		EVENT_AFTER_SHOW:"aftershow",
+		EVENT_BEFORE_HIDE:"beforehide",
+		EVENT_AFTER_HIDE:"afterhide"
+	};
+	
 	var _vars = {
-		onBeforeShow:null,
-		onAfterShow:null,
-		onBeforeHide:null,
-		onAfterHide:null,
-		
 		_hiddenContainer:null,
 		_container:null,
 		_background:null,
@@ -97,6 +99,7 @@ var Overlay = (function(){
 			
 			var container = _vars._container;
 			if (container && container.parentNode){
+				container.setAttribute("class", "");
 				container.parentNode.removeChild(container);
 			}
 			_vars._container = null;
@@ -106,9 +109,7 @@ var Overlay = (function(){
 			if (_vars._content != null){
 				_instance.hide();
 			}
-			if (_instance.onBeforeShow){
-				_instance.onBeforeShow();
-			}
+			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
 			
 			var width, height, offsetX, offsetY;
 			if (typeof options !== typeof undefined){
@@ -136,7 +137,7 @@ var Overlay = (function(){
 			content.data = content.data || {};
 			if (typeof width === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-					width = content[0].currentStyle.width;
+					width = content.currentStyle.width;
 				} else {
 					width = window.getComputedStyle(content).width;
 				}
@@ -148,7 +149,7 @@ var Overlay = (function(){
 			}
 			if (typeof height === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-					height = content[0].currentStyle.height;
+					height = content.currentStyle.height;
 				} else {
 					height = window.getComputedStyle(content).height;
 				}
@@ -171,40 +172,20 @@ var Overlay = (function(){
 			
 			frame.appendChild(content);
 			document.body.appendChild(container);
+			requestAnimationFrame(function(){
+				container.setAttribute("class", "visible");
+			});
 			
-			if (_instance.onAfterShow){
-				_instance.onAfterShow();
-			}
+			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
 		},
 		
 		hide:function(){
-			if (_instance.onBeforeHide){
-				_instance.onBeforeHide();
-			}
-			var hiddenContainer = _vars._hiddenContainer;
+			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_HIDE));
 			
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
 			}
-			
-			var frame = _vars._frame;
-			if (frame){
-				frame.style.marginTop = "";
-				frame.style.marginLeft = "";
-				frame.style.width = "";
-				frame.style.height = "";
-			}
-			
-			var content = _vars._content;
-			if (content){
-				content.style.width = content.data["width"];
-				content.style.height = content.data["height"];
-				content.parentNode.removeChild(content);
-				hiddenContainer.appendChild(content);
-			}
-			_vars._content = null;
-			
 			var background = _vars._background;
 			if (background){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
@@ -212,12 +193,32 @@ var Overlay = (function(){
 			
 			var container = _vars._container;
 			if (container){
-				container.parentNode.removeChild(container);
-			}
-			
-			if (_instance.onAfterHide){
-				_instance.onAfterHide();
-			}
+				TransitionHelper.onTransitionComplete(container, function(){
+					TransitionHelper.offTransitionComplete(container);
+					
+					var frame = _vars._frame;
+					if (frame){
+						frame.style.marginTop = "";
+						frame.style.marginLeft = "";
+						frame.style.width = "";
+						frame.style.height = "";
+					}
+					
+					var content = _vars._content;
+					if (content){
+						content.style.width = content.data["width"];
+						content.style.height = content.data["height"];
+						content.parentNode.removeChild(content);
+						_vars._hiddenContainer.appendChild(content);
+					}
+					_vars._content = null;
+					
+					container.parentNode.removeChild(container);
+					
+					OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
+				});
+				container.setAttribute("class", "");
+			}			
 		},
 		
 		_handler_close_clicked:function(evt){
@@ -235,11 +236,44 @@ var Overlay = (function(){
 		}
 	};
 	
+	var TransitionHelper = (function(){
+		var transitionEvent = null;
+		var transitionEvents = [["transition","transitionend"], ["webkitTransition","webkitTransitionEnd"]];
+		var transitionEventsLen = transitionEvents.length;
+		for (var i = 0; i < transitionEventsLen; i++){
+			if (typeof document.documentElement.style[transitionEvents[i][0]] !== typeof undefined){
+				break;
+			}
+		}
+		if (i != transitionEventsLen){
+			transitionEvent = transitionEvents[i][1];
+		} //else not supported
+		
+		return {
+			onTransitionComplete:function(element, callback){
+				if (transitionEvent){
+					OOP.addEventListener(element, transitionEvent, callback);
+				} else {
+					callback();
+				}
+			},			
+			offTransitionComplete:function(element, callback){
+				if (transitionEvent){
+					if (typeof callback !== typeof undefined){
+						OOP.removeEventListener(element, transitionEvent, callback);
+					} else {
+						OOP.removeEventListener(element, transitionEvent);
+					}
+				}
+			}
+		};
+	})();
+	
 	_instance = {
-		onBeforeShow:_vars.onBeforeShow,
-		onAfterShow:_vars.onAfterShow,
-		onBeforeHide:_vars.onBeforeHide,
-		onAfterHide:_vars.onAfterHide,
+		EVENT_BEFORE_SHOW:_events.EVENT_BEFORE_SHOW,
+		EVENT_AFTER_SHOW:_events.EVENT_AFTER_SHOW,
+		EVENT_BEFORE_HIDE:_events.EVENT_BEFORE_HIDE,
+		EVENT_AFTER_HIDE:_events.EVENT_AFTER_HIDE,
 		
 		initialize:_methods.initialize,
 		destroy:_methods.destroy,
@@ -259,7 +293,7 @@ if (!OOP){
 				try { //IE catch
 					event = new CustomEvent(type); //Non-IE
 				} catch (ex){
-					if(document.createEventObject) { //IE
+					if (document.createEventObject){ //IE
 						event = document.createEventObject("Event");
 						if (event.initCustomEvent){
 							event.initCustomEvent(type, true, true);
@@ -276,7 +310,7 @@ if (!OOP){
 			//Safe cross-browser way to listen for one or more events
 			//Pass obj, comma delimeted event types, and a handler
 			addEventListener:function(obj, types, handler){
-				if(!obj._eventHandlers) {
+				if (!obj._eventHandlers){
 					obj._eventHandlers = {};
 				}
 				types = types.split(",");
@@ -285,8 +319,8 @@ if (!OOP){
 					var type = types[i].trim();
 					if (obj.addEventListener){ //Standard
 						handler = _methods._addEventHandler(obj, type, handler);
-						obj.addEventListener(type, handler, false);
-					} else if(obj.attachEvent){ //IE
+						obj.addEventListener(type, handler);
+					} else if (obj.attachEvent){ //IE
 						var attachHandler = function(){
 							handler(window.event);
 						}
@@ -308,15 +342,15 @@ if (!OOP){
 
 			//Stores and returns handler reference
 			_addEventHandler:function(obj, type, eventHandler){
-				if(!obj._eventHandlers[type]) {
+				if (!obj._eventHandlers[type]){
 					obj._eventHandlers[type] = [];
 				}
 				var eventHandlers = obj._eventHandlers[type];
 				var eventHandlersLen = eventHandlers.length;
-				for(var i = 0; i < eventHandlersLen; i++) {
-					if(eventHandlers[i] === eventHandler) {
+				for (var i = 0; i < eventHandlersLen; i++){
+					if (eventHandlers[i] === eventHandler){
 						return eventHandler;
-					} else if(eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
+					} else if (eventHandlers[i].handler && eventHandlers[i].handler === eventHandler){
 						return eventHandlers[i];
 					}
 				}
@@ -328,7 +362,7 @@ if (!OOP){
 			//Pass obj, comma delimeted event types, and optionally handler
 			//If no handler is passed all handlers for each event type will be removed
 			removeEventListener:function(obj, types, handler){
-				if(!obj._eventHandlers) {
+				if (!obj._eventHandlers){
 					obj._eventHandlers = {};
 				}
 				types = types.split(",");
@@ -336,8 +370,8 @@ if (!OOP){
 				for (var i = 0; i < typesLen; i++){
 					var type = types[i].trim();
 					var handlers;
-					if(typeof handler === typeof undefined) {
-						handlers = _vars._eventHandlers[type];
+					if (typeof handler === typeof undefined){
+						handlers = obj._eventHandlers[type];
 					} else {
 						handlers = [handler];
 					}
@@ -346,8 +380,9 @@ if (!OOP){
 						var handler = handlers[j];
 						if (obj.removeEventListener){ //Standard
 							handler = _methods._removeEventHandler(obj, type, handler);
-							obj.removeEventListener(type, handler, false);
-						} else if(obj.detachEvent){ //IE
+							console.log(handler);
+							obj.removeEventListener(type, handler);
+						} else if (obj.detachEvent){ //IE
 							handler = _methods._removeEventHandler(obj, type, handler);
 							obj.detachEvent("on" + type, handler);
 						} else { //Custom
@@ -361,13 +396,13 @@ if (!OOP){
 			//This is the custom method that gets added to objects
 			//Pass comma delimeted event types, and optionally handler
 			//If no handler is passed all handlers for each event type will be removed
-			_removeEventListener:function(types, handler) {
+			_removeEventListener:function(types, handler){
 				types = types.split(",");
 				var typesLen = types.length;
 				for (var i = 0; i < typesLen; i++){
 					var type = types[i].trim();
 					var handlers;
-					if(typeof handler === typeof undefined) {
+					if (typeof handler === typeof undefined){
 						handlers = this._eventHandlers[type];
 					} else {
 						handlers = [handler];
@@ -382,29 +417,29 @@ if (!OOP){
 			},
 
 			//Removes and returns handler reference
-			_removeEventHandler:function(obj, type, eventHandler) {
-				if(!obj._eventHandlers[type]) {
+			_removeEventHandler:function(obj, type, eventHandler){
+				if (!obj._eventHandlers[type]){
 					obj._eventHandlers[type] = [];
 				}
 				var eventHandlers = obj._eventHandlers[type];
 				var eventHandlersLen = eventHandlers.length;
-				for(var i = 0; i < eventHandlersLen; i++) {
-					if(eventHandlers[i] === eventHandler) {
-						return eventHandlers.splice(i, 1);
-					} else if(eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
-						return eventHandlers.splice(i, 1);
+				for (var i = 0; i < eventHandlersLen; i++){
+					if (eventHandlers[i] === eventHandler){
+						return eventHandlers.splice(i, 1)[0];
+					} else if (eventHandlers[i].handler && eventHandlers[i].handler === eventHandler){
+						return eventHandlers.splice(i, 1)[0];
 					}
 				}
 			},
 
 			//Safe cross-browser way to dispatch an event
 			dispatchEvent:function(obj, event){
-				if(!obj._eventHandlers) {
+				if (!obj._eventHandlers){
 					obj._eventHandlers = {};
 				}
-				if(obj.dispatchEvent){ //Standard
+				if (obj.dispatchEvent){ //Standard
 					obj.dispatchEvent(event);
-				} else if(obj.fireEvent) { //IE
+				} else if (obj.fireEvent){ //IE
 					obj.fireEvent("on" + type, event);
 				} else { //Custom
 					obj.dispatchEvent = _methods._dispatchEvent;
@@ -413,18 +448,18 @@ if (!OOP){
 			},
 
 			//This is the custom method that gets added to objects
-			_dispatchEvent:function(event) {
+			_dispatchEvent:function(event){
 				_methods._dispatchEventHandlers(this, event);
 			},
 
 			//Dispatches an event to handler references
-			_dispatchEventHandlers: function(obj, event) {
+			_dispatchEventHandlers: function(obj, event){
 				var eventHandlers = obj._eventHandlers[event._type];
-				if(!eventHandlers){
+				if (!eventHandlers){
 					return;
 				}
 				var eventHandlersLen = eventHandlers.length;
-				for(var i = 0; i < eventHandlersLen; i++) {
+				for (var i = 0; i < eventHandlersLen; i++){
 					eventHandlers[i](event);
 				}
 			}

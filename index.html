@@ -63,11 +63,27 @@
 				Overlay.show("myOverlay3");
 				return false;
 			});
+			
+			
+			
+			//EVENTS FIRED
+			/*OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
+				console.log("BEFORE SHOW", evt);
+			});
+			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_SHOW, function(evt){
+				console.log("AFTER SHOW", evt);
+			});
+			OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_HIDE, function(evt){
+				console.log("BEFORE HIDE", evt);
+			});
+			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_HIDE, function(evt){
+				console.log("AFTER HIDE", evt);
+			});*/
 		</script>
 		
 		<!-- ALSO WORKS WITH jQUERY -->
 		<!--
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script type="text/javascript">
 			Overlay.initialize("overlays"); //Initialize overlay container
 			
@@ -87,6 +103,22 @@
 				evt.preventDefault();
 				Overlay.show("myOverlay3");
 				return false;
+			});
+			
+			
+			
+			//EVENTS FIRED
+			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
+				console.log("BEFORE SHOW", evt);
+			});
+			$(Overlay).on(Overlay.EVENT_AFTER_SHOW, function(evt){
+				console.log("AFTER SHOW", evt);
+			});
+			$(Overlay).on(Overlay.EVENT_BEFORE_HIDE, function(evt){
+				console.log("BEFORE HIDE", evt);
+			});
+			$(Overlay).on(Overlay.EVENT_AFTER_HIDE, function(evt){
+				console.log("AFTER HIDE", evt);
 			});
 		</script>
 		-->
