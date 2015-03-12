@@ -26,13 +26,13 @@
 		</div>
 		
 		<div id="overlays">
-			<div id="myOverlay1">
+			<div id="myOverlay1" class="slide-up">
 				<h1>TEST CONTENT 1</h1>
 			</div>
-			<div id="myOverlay2">
+			<div id="myOverlay2" class="slide-down">
 				<h1>TEST CONTENT 2</h1>
 			</div>
-			<div id="myOverlay3">
+			<div id="myOverlay3" class="slide-right">
 				<h1>TEST CONTENT 3</h1>
 			</div>
 		</div>
@@ -45,19 +45,25 @@
 			
 			var trigger1 = document.getElementById("overlayTrigger1");
 			OOP.addEventListener(trigger1, "click", function(evt){
-				Overlay.show("myOverlay1");
+				Overlay.show("myOverlay1", {
+					containerClass:"slide-up"
+				});
 				return false;
 			});
 			
 			var trigger2 = document.getElementById("overlayTrigger2");
 			OOP.addEventListener(trigger2, "click", function(evt){
-				Overlay.show("myOverlay2");
+				Overlay.show("myOverlay2", {
+					containerClass:"slide-down"
+				});
 				return false;
 			});
 			
 			var trigger3 = document.getElementById("overlayTrigger3");
 			OOP.addEventListener(trigger3, "click", function(evt){
-				Overlay.show("myOverlay3");
+				Overlay.show("myOverlay3", {
+					containerClass:"slide-right"
+				});
 				return false;
 			});
 			

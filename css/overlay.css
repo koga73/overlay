@@ -54,26 +54,57 @@
   -moz-box-shadow: 0 0 16px #000000;
   -webkit-box-shadow: 0 0 16px #000000;
   text-align: left;
-  transition: top 0.5s;
-  -moz-transition: top 0.5s;
-  -webkit-transition: top 0.5s;
-  top: 100%;
+  transition: top 0.5s, left 0.5s;
+  -moz-transition: top 0.5s, left 0.5s;
+  -webkit-transition: top 0.5s, left 0.5s;
 }
 #overlayContainer #overlayFrame #overlayClose {
   position: absolute;
   width: 32px;
   height: 32px;
-  right: 4px;
-  top: 4px;
+  right: -12px;
+  top: -12px;
   background-color: transparent;
-  background-image: url(../images/btn_close.png);
   cursor: pointer;
   outline: none;
+}
+#overlayContainer #overlayFrame #overlayClose:after {
+  content: "X";
+  display: block;
+  position: absolute;
+  left: 50%;
+  margin-left: -12px;
+  top: 50%;
+  margin-top: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  color: #FFF;
+  background-color: #000;
+  border: 1px solid #FFF;
+  font-family: arial, sans-serif;
+  font-weight: bold;
+  line-height: 26px;
+}
+#overlayContainer.slide-up #overlayFrame {
+  top: 100%;
+}
+#overlayContainer.slide-down #overlayFrame {
+  top: -100%;
+}
+#overlayContainer.slide-right #overlayFrame {
+  left: -100%;
+}
+#overlayContainer.slide-left #overlayFrame {
+  left: 100%;
 }
 #overlayContainer.visible #overlayBackground {
   opacity: 1;
 }
 #overlayContainer.visible #overlayFrame {
   top: 0;
+  left: 0;
 }
 /* -=-=-=-=-=-=-=-=-=-= END OVERLAY =-=-=-=-=-=-=-=-=-=- */

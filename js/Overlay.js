@@ -116,6 +116,7 @@ var Overlay = (function(){
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
 			
 			var width, height, offsetX, offsetY;
+			var containerClass = "";
 			if (typeof options !== typeof undefined){
 				if (typeof options.width !== typeof undefined){
 					width = options.width;
@@ -128,6 +129,9 @@ var Overlay = (function(){
 				}
 				if (typeof options.offsetY !== typeof undefined){
 					offsetY = options.offsetY;
+				}
+				if (typeof options.containerClass !== typeof undefined){
+					containerClass = options.containerClass;
 				}
 			}
 			
@@ -177,12 +181,13 @@ var Overlay = (function(){
 			frame.appendChild(content);
 			document.body.appendChild(container);
 			
+			container.setAttribute("class", containerClass);
 			if (window.requestAnimationFrame){
 				requestAnimationFrame(function(){
-					container.setAttribute("class", "visible");
+					container.setAttribute("class", containerClass + " visible");
 				});
 			} else {
-				container.setAttribute("class", "visible");	
+				container.setAttribute("class", containerClass + " visible");
 			}
 			
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
@@ -227,11 +232,14 @@ var Overlay = (function(){
 					}
 					_vars._content = null;
 					
+					container.setAttribute("class", "");
 					container.parentNode.removeChild(container);
 					
 					OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
 				});
-				container.setAttribute("class", "");
+				var containerClass = container.getAttribute("class");
+				containerClass = containerClass.substr(0, containerClass.length - "visible".length);
+				container.setAttribute("class", containerClass);
 			}			
 		},
 		
