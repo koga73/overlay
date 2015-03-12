@@ -182,13 +182,10 @@ var Overlay = (function(){
 			document.body.appendChild(container);
 			
 			container.setAttribute("class", containerClass);
-			if (window.requestAnimationFrame){
-				requestAnimationFrame(function(){
-					container.setAttribute("class", containerClass + " visible");
-				});
-			} else {
+			var timeout = setTimeout(function(){ //Delay needed for transition to render
+				clearTimeout(timeout);
 				container.setAttribute("class", containerClass + " visible");
-			}
+			}, 50);
 			
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
 		},

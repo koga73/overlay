@@ -88,6 +88,12 @@
   font-weight: bold;
   line-height: 26px;
 }
+#overlayContainer #overlayFrame #overlayClose:hover:after {
+  background-color: #333;
+}
+#overlayContainer #overlayFrame #overlayClose:active:after {
+  background-color: #AAA;
+}
 #overlayContainer.slide-up #overlayFrame {
   top: 100%;
 }
