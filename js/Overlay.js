@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.1 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.2 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -72,13 +72,6 @@ var Overlay = (function(){
 			}
 			_vars._close = null;
 			
-			var frame = _vars._frame;
-			if (frame){
-				frame.style.marginTop = "";
-				frame.style.marginLeft = "";
-				frame.style.width = "";
-				frame.style.height = "";
-			}
 			_vars._frame = null;
 			
 			var content = _vars._content;
@@ -154,6 +147,8 @@ var Overlay = (function(){
 				frame.style.width = width;
 				content.overlayData["width"] = width;
 				content.style.width = "100%";
+			} else {
+				frame.style.width = "";
 			}
 			if (typeof height === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
@@ -166,12 +161,18 @@ var Overlay = (function(){
 				frame.style.height = height;
 				content.overlayData["height"] = height;
 				content.style.height = "100%";
+			} else {
+				frame.style.height = "";
 			}
 			if (typeof offsetX !== typeof undefined){
 				frame.style.left = offsetX;
+			} else {
+				frame.style.left = "";
 			}
 			if (typeof offsetY !== typeof undefined){
 				frame.style.top = offsetY;
+			} else {
+				frame.style.top = "";
 			}
 			_vars._content = content;
 			
@@ -206,14 +207,6 @@ var Overlay = (function(){
 			if (container){
 				TransitionHelper.onTransitionComplete(container, function(){
 					TransitionHelper.offTransitionComplete(container);
-					
-					var frame = _vars._frame;
-					if (frame){
-						frame.style.marginTop = "";
-						frame.style.marginLeft = "";
-						frame.style.width = "";
-						frame.style.height = "";
-					}
 					
 					var content = _vars._content;
 					if (content){
