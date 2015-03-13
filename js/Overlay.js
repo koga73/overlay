@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.2 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.3 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -335,6 +335,9 @@ if (!OOP){
 						attachHandler.handler = handler; //Store reference to original handler
 						attachHandler = _methods._addEventHandler(obj, type, attachHandler);
 						obj.attachEvent("on" + type, attachHandler);
+					} else if (typeof jQuery !== typeof undefined){ //jQuery
+						handler = _methods._addEventHandler(obj, type, handler);
+						jQuery.on(type, handler);
 					} else { //Custom
 						obj.addEventListener = _methods._addEventListener;
 						obj.addEventListener(type, handler);
@@ -392,6 +395,9 @@ if (!OOP){
 						} else if (obj.detachEvent){ //IE
 							handler = _methods._removeEventHandler(obj, type, handler);
 							obj.detachEvent("on" + type, handler);
+						} else if (typeof jQuery !== typeof undefined){ //jQuery
+							handler = _methods._removeEventHandler(obj, type, handler);
+							jQuery.off(type, handler);
 						} else { //Custom
 							obj.removeEventListener = _methods._removeEventListener;
 							obj.removeEventListener(type, handler);
@@ -448,6 +454,11 @@ if (!OOP){
 					obj.dispatchEvent(event);
 				} else if (obj.fireEvent){ //IE
 					obj.fireEvent("on" + type, event);
+				} else if (typeof jQuery !== typeof undefined){
+					jQuery(obj).trigger(jQuery.Event(event._type, {
+						_type:event._type,
+						_data:event._data
+					}));
 				} else { //Custom
 					obj.dispatchEvent = _methods._dispatchEvent;
 					obj.dispatchEvent(event);
@@ -481,3 +492,5 @@ if (!OOP){
 		};
 	})();
 }
+
+Overlay.initialize();

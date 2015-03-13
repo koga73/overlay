@@ -41,8 +41,6 @@
 		
 		<!-- WITHOUT jQUERY YOU CAN USE THE BUILT IN OOP OBJECT FOR EVENTS -->
 		<script type="text/javascript">
-			Overlay.initialize("overlays"); //Initialize overlay container
-			
 			var trigger1 = document.getElementById("overlayTrigger1");
 			OOP.addEventListener(trigger1, "click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -70,7 +68,8 @@
 			
 			
 			//EVENTS FIRED
-			/*OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
+			/*
+			OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
 				console.log("BEFORE SHOW", evt);
 			});
 			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_SHOW, function(evt){
@@ -81,36 +80,39 @@
 			});
 			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_HIDE, function(evt){
 				console.log("AFTER HIDE", evt);
-			});*/
+			});
+			*/
 		</script>
 		
 		<!-- ALSO WORKS WITH jQUERY -->
 		<!--
 		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script type="text/javascript">
-			Overlay.initialize("overlays"); //Initialize overlay container
-			
 			$("#overlayTrigger1").on("click", function(evt){
-				evt.preventDefault();
-				Overlay.show("myOverlay1");
+				Overlay.show("myOverlay1", {
+					containerClass:"slide-up"
+				});
 				return false;
 			});
 			
 			$("#overlayTrigger2").on("click", function(evt){
-				evt.preventDefault();
-				Overlay.show("myOverlay2");
+				Overlay.show("myOverlay2", {
+					containerClass:"slide-down"
+				});
 				return false;
 			});
 			
 			$("#overlayTrigger3").on("click", function(evt){
-				evt.preventDefault();
-				Overlay.show("myOverlay3");
+				Overlay.show("myOverlay3", {
+					containerClass:"slide-right"
+				});
 				return false;
 			});
 			
 			
 			
 			//EVENTS FIRED
+			/*
 			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
 				console.log("BEFORE SHOW", evt);
 			});
@@ -123,6 +125,7 @@
 			$(Overlay).on(Overlay.EVENT_AFTER_HIDE, function(evt){
 				console.log("AFTER HIDE", evt);
 			});
+			*/
 		</script>
 		-->
 	</body>
