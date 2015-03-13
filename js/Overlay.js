@@ -30,7 +30,6 @@ var Overlay = (function(){
 	};
 	
 	var _vars = {
-		_hiddenContainer:null,
 		_container:null,
 		_background:null,
 		_content:null,
@@ -39,9 +38,7 @@ var Overlay = (function(){
 	};
 	
 	var _methods = {
-		initialize:function(hiddenContainerID){
-			_vars._hiddenContainer = document.getElementById(hiddenContainerID);
-			
+		initialize:function(){
 			var container = document.createElement("div");
 			container.setAttribute("id", "overlayContainer");
 			_vars._container = container;
@@ -64,8 +61,6 @@ var Overlay = (function(){
 		},
 		
 		destroy:function(){
-			_vars._hiddenContainer = null;
-			
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
@@ -76,15 +71,17 @@ var Overlay = (function(){
 			
 			var content = _vars._content;
 			if (content){
-				if (typeof content.overlayData["width"] !== typeof undefined){
-					content.style.width = content.overlayData["width"];
-				}
-				if (typeof content.overlayData["height"] !== typeof undefined){
-					content.style.height = content.overlayData["height"];
-				}
-				content.overlayData = null;
 				content.parentNode.removeChild(content);
-				hiddenContainer.appendChild(content);
+				if (typeof content._overlayData.width !== typeof undefined){
+					content.style.width = content._overlayData.width;
+				}
+				if (typeof content._overlayData.height !== typeof undefined){
+					content.style.height = content._overlayData.height;
+				}
+				if (typeof content._overlayData.parent !== typeof undefined){
+					content._overlayData.parent.appendChild(content);
+				}
+				content._overlayData = null;
 			}
 			_vars._content = null;
 			
@@ -128,14 +125,13 @@ var Overlay = (function(){
 				}
 			}
 			
-			var hiddenContainer = _vars._hiddenContainer;
 			var container = _vars._container;
 			var background = _vars._background;
 			var frame = _vars._frame;
 			var close = _vars._close;
 			
 			var content = document.getElementById(contentID);
-			content.overlayData = content.overlayData || {};
+			content._overlayData = content._overlayData || {};
 			if (typeof width === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
 					width = content.currentStyle.width;
@@ -145,7 +141,7 @@ var Overlay = (function(){
 			}
 			if (parseInt(width)){
 				frame.style.width = width;
-				content.overlayData["width"] = width;
+				content._overlayData.width = width;
 				content.style.width = "100%";
 			} else {
 				frame.style.width = "";
@@ -159,7 +155,7 @@ var Overlay = (function(){
 			}
 			if (parseInt(height)){
 				frame.style.height = height;
-				content.overlayData["height"] = height;
+				content._overlayData.height = height;
 				content.style.height = "100%";
 			} else {
 				frame.style.height = "";
@@ -179,6 +175,8 @@ var Overlay = (function(){
 			OOP.addEventListener(background, "click", _methods._handler_background_click);
 			OOP.addEventListener(close, "click", _methods._handler_close_clicked);
 			
+			content._overlayData.parent = content.parentNode;
+			content.parentNode.removeChild(content);
 			frame.appendChild(content);
 			document.body.appendChild(container);
 			
@@ -210,15 +208,17 @@ var Overlay = (function(){
 					
 					var content = _vars._content;
 					if (content){
-						if (typeof content.overlayData["width"] !== typeof undefined){
-							content.style.width = content.overlayData["width"];
-						}
-						if (typeof content.overlayData["height"] !== typeof undefined){
-							content.style.height = content.overlayData["height"];
-						}
-						content.overlayData = null;
 						content.parentNode.removeChild(content);
-						_vars._hiddenContainer.appendChild(content);
+						if (typeof content._overlayData.width !== typeof undefined){
+							content.style.width = content._overlayData.width;
+						}
+						if (typeof content._overlayData.height !== typeof undefined){
+							content.style.height = content._overlayData.height;
+						}
+						if (typeof content._overlayData.parent !== typeof undefined){
+							content._overlayData.parent.appendChild(content);
+						}
+						content._overlayData = null;
 					}
 					_vars._content = null;
 					
