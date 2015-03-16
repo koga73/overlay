@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.3 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.4 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -186,7 +186,11 @@ var Overlay = (function(){
 				container.setAttribute("class", containerClass + " visible");
 			}, 50);
 			
-			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
+			TransitionHelper.offTransitionComplete(container);
+			TransitionHelper.onTransitionComplete(container, function(){
+				TransitionHelper.offTransitionComplete(container);
+				OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
+			});
 		},
 		
 		hide:function(){
@@ -203,6 +207,7 @@ var Overlay = (function(){
 			
 			var container = _vars._container;
 			if (container){
+				TransitionHelper.offTransitionComplete(container);
 				TransitionHelper.onTransitionComplete(container, function(){
 					TransitionHelper.offTransitionComplete(container);
 					
@@ -382,7 +387,7 @@ if (!OOP){
 					var type = types[i];
 					var handlers;
 					if (typeof handler === typeof undefined){
-						handlers = obj._eventHandlers[type];
+						handlers = obj._eventHandlers[type] || [];
 					} else {
 						handlers = [handler];
 					}
@@ -416,7 +421,7 @@ if (!OOP){
 					var type = types[i];
 					var handlers;
 					if (typeof handler === typeof undefined){
-						handlers = this._eventHandlers[type];
+						handlers = this._eventHandlers[type] || [];
 					} else {
 						handlers = [handler];
 					}
