@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.4 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.5 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -251,7 +251,7 @@ var Overlay = (function(){
 	
 	var TransitionHelper = (function(){
 		var transitionEvent = null;
-		var transitionEvents = [["transition","transitionend"], ["webkitTransition","webkitTransitionEnd"]];
+		var transitionEvents = [["webkitTransition","webkitTransitionEnd"], ["transition","transitionend"]];
 		var transitionEventsLen = transitionEvents.length;
 		for (var i = 0; i < transitionEventsLen; i++){
 			if (typeof document.documentElement.style[transitionEvents[i][0]] !== typeof undefined){
