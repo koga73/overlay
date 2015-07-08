@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.5 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.6 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -73,10 +73,10 @@ var Overlay = (function(){
 			if (content){
 				content.parentNode.removeChild(content);
 				if (typeof content._overlayData.width !== typeof undefined){
-					content.style.width = content._overlayData.width;
+					content.style.width = ""; //content._overlayData.width;
 				}
 				if (typeof content._overlayData.height !== typeof undefined){
-					content.style.height = content._overlayData.height;
+					content.style.height = ""; //content._overlayData.height;
 				}
 				if (typeof content._overlayData.parent !== typeof undefined){
 					content._overlayData.parent.appendChild(content);
@@ -215,10 +215,10 @@ var Overlay = (function(){
 					if (content){
 						content.parentNode.removeChild(content);
 						if (typeof content._overlayData.width !== typeof undefined){
-							content.style.width = content._overlayData.width;
+							content.style.width = ""; //content._overlayData.width;
 						}
 						if (typeof content._overlayData.height !== typeof undefined){
-							content.style.height = content._overlayData.height;
+							content.style.height = ""; //content._overlayData.height;
 						}
 						if (typeof content._overlayData.parent !== typeof undefined){
 							content._overlayData.parent.appendChild(content);
