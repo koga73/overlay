@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.6 Copyright (c) 2015 AJ Savino
+* Overlay v1.1.7 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,8 @@ var Overlay = (function(){
 	};
 	
 	var _vars = {
+		container:document.body,
+		
 		_container:null,
 		_background:null,
 		_content:null,
@@ -178,7 +180,12 @@ var Overlay = (function(){
 			content._overlayData.parent = content.parentNode;
 			content.parentNode.removeChild(content);
 			frame.appendChild(content);
-			document.body.appendChild(container);
+			
+			var appendContainer = _instance.container;
+			if (_instance.container.length){
+				appendContainer = _instance.container[0];
+			}
+			appendContainer.appendChild(container);
 			
 			container.setAttribute("class", containerClass);
 			var timeout = setTimeout(function(){ //Delay needed for transition to render
@@ -287,6 +294,8 @@ var Overlay = (function(){
 		EVENT_AFTER_SHOW:_events.EVENT_AFTER_SHOW,
 		EVENT_BEFORE_HIDE:_events.EVENT_BEFORE_HIDE,
 		EVENT_AFTER_HIDE:_events.EVENT_AFTER_HIDE,
+		
+		container:_vars.container,
 		
 		initialize:_methods.initialize,
 		destroy:_methods.destroy,
