@@ -3,13 +3,13 @@
 
 Overlay.js - A simple responsive modal system for the web. Works down to IE8. Easy to customize. jQuery not required.
 
-
 ###Implementation###
 Include JS and CSS files on your page
 
+HTML
 ```html
 <!-- This container serves as a place for your overlays to live when they are not open -->
-<div id="overlays">
+<div id="overlays" style="display:none;">
 	<!-- Each overlay needs an id -->
 	<div id="myOverlay1">
 		<h1>TEST CONTENT 1</h1>
@@ -20,6 +20,7 @@ Include JS and CSS files on your page
 </div>
 ```
 
+CSS
 ```css
 /* By default an overlay will size to the content */
 /* However you can choose to explicitly set the width and/or height */
@@ -30,13 +31,14 @@ Include JS and CSS files on your page
 }
 ```
 
+JavaScript
 ```javascript
-//Show an overlay. Parameters optional. See below for parameter list
+//Show an overlay. Parameters optional. See below for additional parameters
 Overlay.show("myOverlay1", {
 	containerClass:"slide-up"
 });
 
-//Hide the current overlay. No parameters needed.
+//Hide the current overlay. No parameters needed
 Overlay.hide();
 ```
 
@@ -79,8 +81,8 @@ Overlay.EVENT_BEFORE_HIDE
 Overlay.EVENT_AFTER_HIDE
 
 /* Properties */
-//By default the overlay container gets appended to the body
-//Set this property to an html element to change where the overlay container is appended
+//By default the overlayContainer gets appended to the body
+//Set this to an html element to change where the overlayContainer is appended
 Overlay.container = document.getElementById("newContainer");
 
 /* Methods */
