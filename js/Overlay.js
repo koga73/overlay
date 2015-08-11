@@ -1,5 +1,5 @@
 /*
-* Overlay v1.1.8 Copyright (c) 2015 AJ Savino
+* Overlay v1.2.0 Copyright (c) 2015 AJ Savino
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,10 @@ var Overlay = (function(){
 		_background:null,
 		_content:null,
 		_frame:null,
-		_close:null
+		_close:null,
+		
+		_showCallback:null,
+		_hideCallback:null,
 	};
 	
 	var _methods = {
@@ -100,13 +103,22 @@ var Overlay = (function(){
 				container.parentNode.removeChild(container);
 			}
 			_vars._container = null;
+			
+			_vars._showCallback = null;
+			_vars._hideCallback = null;
 		},
 		
-		show:function(contentID, options){
-			if (_vars._content != null){
-				_instance.hide();
-			}
+		show:function(contentID, options, callback){
+			_vars._showCallback = callback;
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
+			
+			//Hide current
+			if (_vars._content != null){
+				_instance.hide(function(){ //Callback chaining
+					_instance.show(contentID, options, callback);
+				});
+				return;
+			}
 			
 			var width, height, offsetX, offsetY;
 			var containerClass = "";
@@ -194,14 +206,16 @@ var Overlay = (function(){
 				container.setAttribute("class", containerClass + " visible");
 			}, 50);
 			
-			TransitionHelper.offTransitionComplete(container);
-			TransitionHelper.onTransitionComplete(container, function(){
+			if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)){
 				TransitionHelper.offTransitionComplete(container);
-				OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
-			});
+				TransitionHelper.onTransitionComplete(container, _methods._handler_show_complete);
+			} else {
+				_methods._handler_show_complete();
+			}
 		},
 		
-		hide:function(){
+		hide:function(callback){
+			_vars._hideCallback = callback;
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_HIDE));
 			
 			var close = _vars._close;
@@ -213,37 +227,61 @@ var Overlay = (function(){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
 			
+			var frame = _vars._frame;
 			var container = _vars._container;
 			if (container){
-				TransitionHelper.offTransitionComplete(container);
-				TransitionHelper.onTransitionComplete(container, function(){
+				if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)){
 					TransitionHelper.offTransitionComplete(container);
-					
-					var content = _vars._content;
-					if (content){
-						content.parentNode.removeChild(content);
-						if (typeof content._overlayData.width !== typeof undefined){
-							content.style.width = ""; //content._overlayData.width;
-						}
-						if (typeof content._overlayData.height !== typeof undefined){
-							content.style.height = ""; //content._overlayData.height;
-						}
-						if (typeof content._overlayData.parent !== typeof undefined){
-							content._overlayData.parent.appendChild(content);
-						}
-						content._overlayData = null;
-					}
-					_vars._content = null;
-					
-					container.setAttribute("class", "");
-					container.parentNode.removeChild(container);
-					
-					OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
-				});
+					TransitionHelper.onTransitionComplete(container, _methods._handler_hide_complete);
+				} else {
+					_methods._handler_hide_complete();
+				}
 				var containerClass = container.getAttribute("class");
 				containerClass = containerClass.substr(0, containerClass.length - "visible".length);
 				container.setAttribute("class", containerClass);
-			}			
+			}
+		},
+		
+		_handler_show_complete:function(){
+			TransitionHelper.offTransitionComplete(_vars._container);
+			
+			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
+			var showCallback = _vars._showCallback;
+			if (typeof showCallback !== typeof undefined){
+				showCallback();
+				_vars._showCallback = null;
+			}
+		},
+		
+		_handler_hide_complete:function(){
+			var container = _vars._container;
+			TransitionHelper.offTransitionComplete(container);
+			
+			var content = _vars._content;
+			if (content){
+				content.parentNode.removeChild(content);
+				if (typeof content._overlayData.width !== typeof undefined){
+					content.style.width = ""; //content._overlayData.width;
+				}
+				if (typeof content._overlayData.height !== typeof undefined){
+					content.style.height = ""; //content._overlayData.height;
+				}
+				if (typeof content._overlayData.parent !== typeof undefined){
+					content._overlayData.parent.appendChild(content);
+				}
+				content._overlayData = null;
+			}
+			_vars._content = null;
+			
+			container.setAttribute("class", "");
+			container.parentNode.removeChild(container);
+			
+			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
+			var hideCallback = _vars._hideCallback;
+			if (typeof hideCallback !== typeof undefined){
+				hideCallback();
+				_vars._hideCallback = null;
+			}
 		},
 		
 		_handler_close_clicked:function(evt){
@@ -259,7 +297,9 @@ var Overlay = (function(){
 	
 	var TransitionHelper = (function(){
 		var transitionEvent = null;
-		var transitionEvents = [["webkitTransition","webkitTransitionEnd"], ["transition","transitionend"]];
+		var transitionPrefix = null;
+		
+		var transitionEvents = [["webkitTransition","webkitTransitionEnd","-webkit-"], ["transition","transitionend",""]];
 		var transitionEventsLen = transitionEvents.length;
 		for (var i = 0; i < transitionEventsLen; i++){
 			if (typeof document.documentElement.style[transitionEvents[i][0]] !== typeof undefined){
@@ -268,16 +308,24 @@ var Overlay = (function(){
 		}
 		if (i != transitionEventsLen){
 			transitionEvent = transitionEvents[i][1];
+			transitionPrefix = transitionEvents[i][2];
 		} //else not supported
 		
 		return {
+			hasTransition:function(element){
+				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
+					return parseFloat(element.currentStyle[transitionPrefix + "transition-duration"]) > 0;
+				} else {
+					return parseFloat(window.getComputedStyle(element)[transitionPrefix + "transition-duration"]) > 0;
+				}
+			},
 			onTransitionComplete:function(element, callback){
 				if (transitionEvent){
 					OOP.addEventListener(element, transitionEvent, callback);
 				} else {
 					callback();
 				}
-			},			
+			},
 			offTransitionComplete:function(element, callback){
 				if (transitionEvent){
 					if (typeof callback !== typeof undefined){

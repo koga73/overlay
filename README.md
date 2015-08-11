@@ -33,13 +33,13 @@ CSS
 
 JavaScript
 ```javascript
-//Show an overlay. Parameters optional. See below for additional parameters
+//Show an overlay. Second and third parameters optional. See below for parameter info
 Overlay.show("myOverlay1", {
 	containerClass:"slide-up"
-});
+}, myCallback);
 
-//Hide the current overlay. No parameters needed
-Overlay.hide();
+//Hide the current overlay. Parameters optional
+Overlay.hide(myCallback);
 ```
 
 ----------
@@ -94,9 +94,11 @@ Overlay.initialize()
 Overlay.destroy()
 
 //Hides the current overlay
-Overlay.hide()
+//Optional callback will fire after hidden
+Overlay.hide(callback)
 
-//Shows an overlay. Parameters are optional
+//Shows an overlay. Second and third parameters are optional
+//Optional callback will fire after shown
 Overlay.show("{ID}", {
 	//Override width
 	width:"500px",
@@ -108,5 +110,5 @@ Overlay.show("{ID}", {
 	offsetY:"300px",
 	//Add classes to the container. Useful for animation and styling
 	containerClass:"slide-up my-special-modal"
-});
+}, callback);
 ```
