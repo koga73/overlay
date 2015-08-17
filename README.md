@@ -9,7 +9,7 @@ Include JS and CSS files on your page
 HTML
 ```html
 <!-- This container serves as a place for your overlays to live when they are not open -->
-<div id="overlays" style="display:none;">
+<div style="display:none;">
 	<!-- Each overlay needs an id -->
 	<div id="myOverlay1">
 		<h1>TEST CONTENT 1</h1>

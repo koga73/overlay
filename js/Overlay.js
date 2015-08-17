@@ -1,5 +1,6 @@
 /*
-* Overlay v1.2.0 Copyright (c) 2015 AJ Savino
+* Overlay v1.2.1 Copyright (c) 2015 AJ Savino
+* https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +30,15 @@ var Overlay = (function(){
 		EVENT_AFTER_HIDE:"afterhide"
 	};
 	
+	var _consts = {
+		ID_CONTAINER:"overlayContainer",
+		ID_BACKGROUND:"overlayBackground",
+		ID_FRAME:"overlayFrame",
+		ID_CLOSE:"overlayClose",
+		CLASS_FRAME_VISIBLE:"visible",
+		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible"
+	};
+	
 	var _vars = {
 		container:document.body,
 		
@@ -45,19 +55,19 @@ var Overlay = (function(){
 	var _methods = {
 		initialize:function(){
 			var container = document.createElement("div");
-			container.setAttribute("id", "overlayContainer");
+			container.setAttribute("id", _consts.ID_CONTAINER);
 			_vars._container = container;
 			
 			var background = document.createElement("div");
-			background.setAttribute("id", "overlayBackground");
+			background.setAttribute("id", _consts.ID_BACKGROUND);
 			_vars._background = background;
 			
 			var frame = document.createElement("div");
-			frame.setAttribute("id", "overlayFrame");
+			frame.setAttribute("id", _consts.ID_FRAME);
 			_vars._frame = frame;
 			
 			var close = document.createElement("button");
-			close.setAttribute("id", "overlayClose");
+			close.setAttribute("id", _consts.ID_CLOSE);
 			close.setAttribute("type", "button");
 			_vars._close = close;
 			
@@ -67,6 +77,8 @@ var Overlay = (function(){
 		},
 		
 		destroy:function(){
+			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
+			
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
@@ -110,6 +122,7 @@ var Overlay = (function(){
 		
 		show:function(contentID, options, callback){
 			_vars._showCallback = callback;
+			ClassHelper.addClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
 			
 			//Hide current
@@ -120,6 +133,7 @@ var Overlay = (function(){
 				return;
 			}
 			
+			//Parse parameters
 			var width, height, offsetX, offsetY;
 			var containerClass = "";
 			if (typeof options !== typeof undefined){
@@ -140,11 +154,13 @@ var Overlay = (function(){
 				}
 			}
 			
+			//Cache
 			var container = _vars._container;
 			var background = _vars._background;
 			var frame = _vars._frame;
 			var close = _vars._close;
 			
+			//Set frame dimensions to content dimensions and apply parameter overrides
 			var content = document.getElementById(contentID);
 			content._overlayData = content._overlayData || {};
 			if (typeof width === typeof undefined){
@@ -187,25 +203,30 @@ var Overlay = (function(){
 			}
 			_vars._content = content;
 			
+			//Wire events
 			OOP.addEventListener(background, "click", _methods._handler_background_click);
 			OOP.addEventListener(close, "click", _methods._handler_close_clicked);
 			
+			//Append content
 			content._overlayData.parent = content.parentNode;
 			content.parentNode.removeChild(content);
 			frame.appendChild(content);
 			
+			//Append container
 			var appendContainer = _instance.container;
 			if (_instance.container.length){
 				appendContainer = _instance.container[0];
 			}
 			appendContainer.appendChild(container);
 			
-			container.setAttribute("class", containerClass);
+			//Add containerClass
+			ClassHelper.addClass(container, containerClass);
 			var timeout = setTimeout(function(){ //Delay needed for transition to render
 				clearTimeout(timeout);
-				container.setAttribute("class", containerClass + " visible");
+				ClassHelper.addClass(container, _consts.CLASS_FRAME_VISIBLE);
 			}, 50);
 			
+			//Wait for transition before completing show
 			if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)){
 				TransitionHelper.offTransitionComplete(container);
 				TransitionHelper.onTransitionComplete(container, _methods._handler_show_complete);
@@ -218,6 +239,7 @@ var Overlay = (function(){
 			_vars._hideCallback = callback;
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_HIDE));
 			
+			//Unwire events
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
@@ -227,6 +249,7 @@ var Overlay = (function(){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
 			
+			//Wait for transition before completing hide
 			var frame = _vars._frame;
 			var container = _vars._container;
 			if (container){
@@ -236,9 +259,7 @@ var Overlay = (function(){
 				} else {
 					_methods._handler_hide_complete();
 				}
-				var containerClass = container.getAttribute("class");
-				containerClass = containerClass.substr(0, containerClass.length - "visible".length);
-				container.setAttribute("class", containerClass);
+				ClassHelper.removeClass(container, _consts.CLASS_FRAME_VISIBLE);
 			}
 		},
 		
@@ -257,6 +278,7 @@ var Overlay = (function(){
 			var container = _vars._container;
 			TransitionHelper.offTransitionComplete(container);
 			
+			//Reset content
 			var content = _vars._content;
 			if (content){
 				content.parentNode.removeChild(content);
@@ -273,9 +295,11 @@ var Overlay = (function(){
 			}
 			_vars._content = null;
 			
+			//Remove container
 			container.setAttribute("class", "");
 			container.parentNode.removeChild(container);
 			
+			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
 			var hideCallback = _vars._hideCallback;
 			if (typeof hideCallback !== typeof undefined){
@@ -333,6 +357,62 @@ var Overlay = (function(){
 					} else {
 						OOP.removeEventListener(element, transitionEvent);
 					}
+				}
+			}
+		};
+	})();
+	
+	var ClassHelper = (function(){
+		//Trim shim
+		if (typeof String.prototype.trim !== 'function'){
+			String.prototype.trim = function(){
+				return this.replace(/^\s+|\s+$/g, ''); 
+			}
+		}
+		
+		return {
+			addClass:function(element, classes){
+				var elementClasses = (element.getAttribute("class") || "").split(" ");
+				classes = classes.split(" ");
+				for (var className in classes){
+					elementClasses.push(classes[className].trim());
+				}
+				element.setAttribute("class", elementClasses.join(" ").trim());
+			},
+			
+			removeClass:function(element, classes){
+				var elementClasses = (element.getAttribute("class") || "").split(" ");
+				classes = classes.split(" ");
+				for (var className in classes){
+					var elementClassesLen = elementClasses.length;
+					for (var i = 0; i < elementClassesLen; i++){
+						if (elementClasses[i] == classes[className].trim()){
+							elementClasses.splice(i, 1);
+							elementClassesLen--;
+							i--;
+						}
+					}
+				}
+				element.setAttribute("class", elementClasses.join(" ").trim());
+			},
+			
+			hasClass:function(element, classes){
+				var elementClasses = (element.getAttribute("class") || "").split(" ");
+				classes = classes.split(" ");
+				var hasCount = 0;
+				for (var className in classes){
+					var elementClassesLen = elementClasses.length;
+					for (var i = 0; i < elementClassesLen; i++){
+						if (elementClasses[i] == classes[className].trim()){
+							hasCount++;
+							break;
+						}
+					}
+				}
+				if (hasCount == classes.length){
+					return true;
+				} else {
+					return false
 				}
 			}
 		};
