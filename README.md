@@ -46,6 +46,20 @@ Overlay.hide(myCallback);
 
 ####Events####
 ```javascript
+/* With jQuery */
+
+$("#triggerLink").on("click", function(evt){
+	Overlay.show("myOverlay1", {
+		containerClass:"slide-up"
+	});
+	return false;
+});
+$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
+	console.log("BEFORE SHOW");
+});
+
+/* - OR - */
+
 /* Without jQuery you can use the built in OOP object for events */
 
 var triggerLink = document.getElementById("triggerLink");
@@ -55,7 +69,6 @@ OOP.addEventListener(triggerLink, "click", function(evt){
 	});
 	return false;
 });
-
 OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
 	console.log("BEFORE SHOW");
 });
