@@ -1,5 +1,5 @@
 /*
-* Overlay v1.2.1 Copyright (c) 2015 AJ Savino
+* Overlay v1.3.0 Copyright (c) 2015 AJ Savino
 * https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -49,7 +49,7 @@ var Overlay = (function(){
 		_close:null,
 		
 		_showCallback:null,
-		_hideCallback:null,
+		_hideCallback:null
 	};
 	
 	var _methods = {
@@ -81,7 +81,7 @@ var Overlay = (function(){
 			
 			var close = _vars._close;
 			if (close){
-				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
+				OOP.removeEventListener(close, "click", _methods._handler_close_click);
 			}
 			_vars._close = null;
 			
@@ -108,12 +108,16 @@ var Overlay = (function(){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
 			_vars._background = null;
+            
+            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
 			
-			var container = _vars._container;
-			if (container && container.parentNode){
+            var container = _vars._container;
+            if (container){
 				container.setAttribute("class", "");
-				container.parentNode.removeChild(container);
-			}
+                if (container.parentNode){
+                    container.parentNode.removeChild(container);
+                }
+            }
 			_vars._container = null;
 			
 			_vars._showCallback = null;
@@ -205,7 +209,8 @@ var Overlay = (function(){
 			
 			//Wire events
 			OOP.addEventListener(background, "click", _methods._handler_background_click);
-			OOP.addEventListener(close, "click", _methods._handler_close_clicked);
+			OOP.addEventListener(close, "click", _methods._handler_close_click);
+			OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
 			
 			//Append content
 			content._overlayData.parent = content.parentNode;
@@ -242,13 +247,14 @@ var Overlay = (function(){
 			//Unwire events
 			var close = _vars._close;
 			if (close){
-				OOP.removeEventListener(close, "click", _methods._handler_close_clicked);
+				OOP.removeEventListener(close, "click", _methods._handler_close_click);
 			}
 			var background = _vars._background;
 			if (background){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
-			
+            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
+            
 			//Wait for transition before completing hide
 			var frame = _vars._frame;
 			var container = _vars._container;
@@ -308,7 +314,7 @@ var Overlay = (function(){
 			}
 		},
 		
-		_handler_close_clicked:function(evt){
+		_handler_close_click:function(evt){
 			_instance.hide();
 			return false;
 		},
@@ -316,7 +322,13 @@ var Overlay = (function(){
 		_handler_background_click:function(evt){
 			_instance.hide();
 			return false;
-		}
+		},
+        
+        _handler_document_keyUp:function(evt){
+            if (evt.keyCode == 27){ //Escape
+                _instance.hide();   
+            }
+        }
 	};
 	
 	var TransitionHelper = (function(){

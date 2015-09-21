@@ -1,11 +1,3 @@
-#myOverlay1 {
-  width: 640px;
-  height: 390px;
-}
-#myOverlay2 {
-  width: 50%;
-  height: 50%;
-}
 /* -=-=-=-=-=-=-=-=-=-= BEGIN OVERLAY =-=-=-=-=-=-=-=-=-=- */
 /* Lock Page */
 body.overlay-visible {
@@ -58,6 +50,19 @@ body.overlay-visible {
   transition: top 0.5s, left 0.5s;
   -moz-transition: top 0.5s, left 0.5s;
   -webkit-transition: top 0.5s, left 0.5s;
+}
+#overlayContainer #overlayFrame:before {
+  content: "Dialog Start";
+}
+#overlayContainer #overlayFrame:after {
+  content: "Dialog End";
+}
+#overlayContainer #overlayFrame:before,
+#overlayContainer #overlayFrame:after {
+  display: inline-block;
+  position: absolute;
+  top: -99999px;
+  left: -99999px;
 }
 #overlayContainer #overlayFrame #overlayClose {
   position: absolute;

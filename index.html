@@ -1,25 +1,42 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
-		<title>OVERLAY</title>
+		<title>Overlay.js</title>
 		
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8;"/>
 		
+        <!-- Include Overlay.js styles -->
+        <link href="css/overlay.css" type="text/css" rel="stylesheet"/>
+        
+        <!-- Custom styles for each overlay -->
 		<style type="text/css">
-			* {
+			/* Simple reset */
+            * {
 				margin:0;
 				border:0;
 				padding:0;
 			}
-			
-			a {
-				display:block;
-			}
+            
+            a {
+                display:block;
+            }
+            
+            #myOverlay1 {
+                width:600px;
+                height:400px;
+            }
+            #myOverlay2 {
+                width:50%;
+                height:50%;
+            }
+            #myOverlay3 {
+                
+            }
 		</style>
-		<link href="css/overlay.css" type="text/css" rel="stylesheet"/>
 	</head>
 	<body>
-		<div id="container">
+		<!-- Buttons to trigger overlays -->
+        <div id="container">
 			<a id="overlayTrigger1" href="#">OPEN OVERLAY 1</a>
 			<a id="overlayTrigger2" href="#">OPEN OVERLAY 2</a>
 			<a id="overlayTrigger3" href="#">OPEN OVERLAY 3</a>
@@ -27,22 +44,72 @@
 		
 		<!-- This container serves as a place for your overlays to live when they are not open -->
 		<div style="display:none;">
-			<!-- Each overlay needs an id -->
-			<div id="myOverlay1">
-				<h1>TEST CONTENT 1</h1>
+			<!-- Each overlay needs an id. The aria-labelledby is not required but is best practice -->
+			<div id="myOverlay1" aria-labelledby="myOverlay1Heading">
+				<h1 id="myOverlay1Heading">TEST CONTENT 1</h1>
 			</div>
-			<div id="myOverlay2">
-				<h1>TEST CONTENT 2</h1>
+			<div id="myOverlay2" aria-labelledby="myOverlay2Heading">
+				<h1 id="myOverlay2Heading">TEST CONTENT 2</h1>
 			</div>
-			<div id="myOverlay3">
-				<h1>TEST CONTENT 3</h1>
+			<div id="myOverlay3" aria-labelledby="myOverlay3Heading">
+				<h1 id="myOverlay3Heading">TEST CONTENT 3</h1>
 			</div>
 		</div>
 		
+        
+        
+        
+        
+        <!-- Include Overlay.js -->
 		<script type="text/javascript" src="js/Overlay.js"></script>
 		
-		<!-- WITHOUT jQUERY YOU CAN USE THE BUILT IN OOP OBJECT FOR EVENTS -->
+		<!-- Using jQUERY -->
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script type="text/javascript">
+			$("#overlayTrigger1").on("click", function(evt){
+				Overlay.show("myOverlay1", {
+					containerClass:"slide-up"
+				});
+				return false;
+			});
+			
+			$("#overlayTrigger2").on("click", function(evt){
+				Overlay.show("myOverlay2", {
+					containerClass:"slide-down"
+				});
+				return false;
+			});
+			
+			$("#overlayTrigger3").on("click", function(evt){
+				Overlay.show("myOverlay3", {
+					containerClass:"slide-right"
+				});
+				return false;
+			});
+			
+			
+			//Optional: Events fired
+			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
+				console.log("BEFORE SHOW"/*, evt*/);
+			});
+			$(Overlay).on(Overlay.EVENT_AFTER_SHOW, function(evt){
+				console.log("AFTER SHOW"/*, evt*/);
+			});
+			$(Overlay).on(Overlay.EVENT_BEFORE_HIDE, function(evt){
+				console.log("BEFORE HIDE"/*, evt*/);
+			});
+			$(Overlay).on(Overlay.EVENT_AFTER_HIDE, function(evt){
+				console.log("AFTER HIDE"/*, evt*/);
+			});
+		</script>
+        
+        
+        
+        
+        
+        <!-- Also works without jQuery -->
+        <!-- Without jQuery you can use the built in OOP object for events -->
+		<!--<script type="text/javascript">
 			var trigger1 = document.getElementById("overlayTrigger1");
 			OOP.addEventListener(trigger1, "click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -68,8 +135,7 @@
 			});
 			
 			
-			
-			//EVENTS FIRED
+			//Optional: Events fired
 			OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
 				console.log("BEFORE SHOW"/*, evt*/);
 			});
@@ -82,51 +148,6 @@
 			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_HIDE, function(evt){
 				console.log("AFTER HIDE"/*, evt*/);
 			});
-		</script>
-		
-		<!-- ALSO WORKS WITH jQUERY -->
-		<!--
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-		<script type="text/javascript">
-			$("#overlayTrigger1").on("click", function(evt){
-				Overlay.show("myOverlay1", {
-					containerClass:"slide-up"
-				});
-				return false;
-			});
-			
-			$("#overlayTrigger2").on("click", function(evt){
-				Overlay.show("myOverlay2", {
-					containerClass:"slide-down"
-				});
-				return false;
-			});
-			
-			$("#overlayTrigger3").on("click", function(evt){
-				Overlay.show("myOverlay3", {
-					containerClass:"slide-right"
-				});
-				return false;
-			});
-			
-			
-			
-			//EVENTS FIRED
-			/*
-			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
-				console.log("BEFORE SHOW", evt);
-			});
-			$(Overlay).on(Overlay.EVENT_AFTER_SHOW, function(evt){
-				console.log("AFTER SHOW", evt);
-			});
-			$(Overlay).on(Overlay.EVENT_BEFORE_HIDE, function(evt){
-				console.log("BEFORE HIDE", evt);
-			});
-			$(Overlay).on(Overlay.EVENT_AFTER_HIDE, function(evt){
-				console.log("AFTER HIDE", evt);
-			});
-			*/
-		</script>
-		-->
+		</script>-->
 	</body>
 </html>
