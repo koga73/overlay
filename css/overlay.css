@@ -72,7 +72,10 @@ body.overlay-visible {
   top: -12px;
   background-color: transparent;
   cursor: pointer;
-  outline: none;
+  text-indent: -99999px;
+}
+#overlayContainer #overlayFrame #overlayClose.hidden {
+  display: none;
 }
 #overlayContainer #overlayFrame #overlayClose:after {
   content: "X";
@@ -93,6 +96,7 @@ body.overlay-visible {
   font-family: arial, sans-serif;
   font-weight: bold;
   line-height: 26px;
+  text-indent: 0;
 }
 #overlayContainer #overlayFrame #overlayClose:hover:after {
   background-color: #333;

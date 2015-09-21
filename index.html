@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
-		<title>Overlay.js</title>
-		
+        <title>Overlay.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8;"/>
 		
         <!-- Include Overlay.js styles -->
@@ -35,8 +34,8 @@
 		</style>
 	</head>
 	<body>
-		<!-- Buttons to trigger overlays -->
-        <div id="container">
+		<!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
+        <div id="container" data-overlay-page-wrap>
 			<a id="overlayTrigger1" href="#">OPEN OVERLAY 1</a>
 			<a id="overlayTrigger2" href="#">OPEN OVERLAY 2</a>
 			<a id="overlayTrigger3" href="#">OPEN OVERLAY 3</a>
@@ -47,6 +46,7 @@
 			<!-- Each overlay needs an id. The aria-labelledby is not required but is best practice -->
 			<div id="myOverlay1" aria-labelledby="myOverlay1Heading">
 				<h1 id="myOverlay1Heading">TEST CONTENT 1</h1>
+                <input type="text"/>
 			</div>
 			<div id="myOverlay2" aria-labelledby="myOverlay2Heading">
 				<h1 id="myOverlay2Heading">TEST CONTENT 2</h1>

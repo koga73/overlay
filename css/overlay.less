@@ -79,7 +79,11 @@ body.overlay-visible {
 			top:-12px;
 			background-color:transparent;
 			cursor:pointer;
-			outline:none;
+            text-indent:-99999px;
+            
+            &.hidden {
+                display:none;
+            }
 			
 			&:after {
 				content:"X";
@@ -100,6 +104,7 @@ body.overlay-visible {
 				font-family:arial, sans-serif;
 				font-weight:bold;
 				line-height:26px;
+                text-indent:0;
 			}
 			
 			&:hover {

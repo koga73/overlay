@@ -36,11 +36,16 @@ var Overlay = (function(){
 		ID_FRAME:"overlayFrame",
 		ID_CLOSE:"overlayClose",
 		CLASS_FRAME_VISIBLE:"visible",
-		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible"
+		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible",
+		CLASS_CLOSE_HIDDEN:"hidden",
+        DATA_CONTAINER:"data-overlay-container",
+        DATA_PAGE_WRAP:"data-overlay-page-wrap",
+        FOCUSABLE:"a[href],input,select,textarea,button,[tabindex]"
 	};
 	
 	var _vars = {
 		container:document.body,
+		pageWrap:null,
 		
 		_container:null,
 		_background:null,
@@ -49,7 +54,9 @@ var Overlay = (function(){
 		_close:null,
 		
 		_showCallback:null,
-		_hideCallback:null
+		_hideCallback:null,
+        
+        _lastFocus:null
 	};
 	
 	var _methods = {
@@ -64,16 +71,27 @@ var Overlay = (function(){
 			
 			var frame = document.createElement("div");
 			frame.setAttribute("id", _consts.ID_FRAME);
+			frame.setAttribute("role", "dialog");
 			_vars._frame = frame;
 			
 			var close = document.createElement("button");
 			close.setAttribute("id", _consts.ID_CLOSE);
 			close.setAttribute("type", "button");
+            close.innerHTML = "Close";
 			_vars._close = close;
 			
 			frame.appendChild(close);
 			container.appendChild(background);
 			container.appendChild(frame);
+            
+            var container = document.querySelector("[" + _consts.DATA_CONTAINER + "]");
+            if (container){
+                _instance.container = container;
+            }
+            var pageWrap = document.querySelector("[" + _consts.DATA_PAGE_WRAP + "]");
+            if (pageWrap){
+                _instance.pageWrap = pageWrap;
+            }
 		},
 		
 		destroy:function(){
@@ -82,6 +100,7 @@ var Overlay = (function(){
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
+                ClassHelper.removeClass(close, _consts.CLASS_CLOSE_HIDDEN);
 			}
 			_vars._close = null;
 			
@@ -122,6 +141,7 @@ var Overlay = (function(){
 			
 			_vars._showCallback = null;
 			_vars._hideCallback = null;
+            _vars._lastFocus = null;
 		},
 		
 		show:function(contentID, options, callback){
@@ -140,7 +160,8 @@ var Overlay = (function(){
 			//Parse parameters
 			var width, height, offsetX, offsetY;
 			var containerClass = "";
-			if (typeof options !== typeof undefined){
+			var userClosable = true;
+            if (typeof options !== typeof undefined){
 				if (typeof options.width !== typeof undefined){
 					width = options.width;
 				}
@@ -155,6 +176,9 @@ var Overlay = (function(){
 				}
 				if (typeof options.containerClass !== typeof undefined){
 					containerClass = options.containerClass;
+				}
+                if (typeof options.userClosable !== typeof undefined){
+					userClosable = options.userClosable;
 				}
 			}
 			
@@ -208,14 +232,18 @@ var Overlay = (function(){
 			_vars._content = content;
 			
 			//Wire events
-			OOP.addEventListener(background, "click", _methods._handler_background_click);
-			OOP.addEventListener(close, "click", _methods._handler_close_click);
-			OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
+            if (userClosable){
+                OOP.addEventListener(background, "click", _methods._handler_background_click);
+                OOP.addEventListener(close, "click", _methods._handler_close_click);
+                OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
+            } else {
+                ClassHelper.addClass(close, _consts.CLASS_CLOSE_HIDDEN);
+            }
 			
 			//Append content
 			content._overlayData.parent = content.parentNode;
 			content.parentNode.removeChild(content);
-			frame.appendChild(content);
+			frame.insertBefore(content, close);
 			
 			//Append container
 			var appendContainer = _instance.container;
@@ -224,6 +252,23 @@ var Overlay = (function(){
 			}
 			appendContainer.appendChild(container);
 			
+            //Save focus, accessibility focus trap, set focus to first focusable item
+            _vars._lastFocus = document.activeElement;
+            var pageWrap = _instance.pageWrap;
+            if (pageWrap){
+                if (pageWrap.contains(appendContainer)){
+                    throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the modal container. They should be siblings instead.";
+                } else {
+                    pageWrap.setAttribute("aria-hidden", "true");
+                    pageWrap.setAttribute("tabindex", "-1");
+                }
+            }
+            var focusable = content.querySelector(_consts.FOCUSABLE);
+            if (!focusable){
+                focusable = close;
+            }
+            focusable.focus();
+            
 			//Add containerClass
 			ClassHelper.addClass(container, containerClass);
 			var timeout = setTimeout(function(){ //Delay needed for transition to render
@@ -248,6 +293,7 @@ var Overlay = (function(){
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
+                ClassHelper.removeClass(close, _consts.CLASS_CLOSE_HIDDEN);
 			}
 			var background = _vars._background;
 			if (background){
@@ -304,6 +350,18 @@ var Overlay = (function(){
 			//Remove container
 			container.setAttribute("class", "");
 			container.parentNode.removeChild(container);
+            
+            //Remove accessibility focus trap and restore focus
+            var pageWrap = _instance.pageWrap;
+            if (pageWrap){
+                pageWrap.removeAttribute("aria-hidden", "true");
+                pageWrap.removeAttribute("tabindex", "-1");
+            }
+            var lastFocus = _vars._lastFocus;
+            if (lastFocus){
+                lastFocus.focus();
+            }
+            _vars._lastFocus = null;
 			
 			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
@@ -437,6 +495,7 @@ var Overlay = (function(){
 		EVENT_AFTER_HIDE:_events.EVENT_AFTER_HIDE,
 		
 		container:_vars.container,
+        pageWrap:_vars.pageWrap,
 		
 		initialize:_methods.initialize,
 		destroy:_methods.destroy,
