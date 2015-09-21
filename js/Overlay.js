@@ -40,6 +40,7 @@ var Overlay = (function(){
 		CLASS_CLOSE_HIDDEN:"hidden",
         DATA_CONTAINER:"data-overlay-container",
         DATA_PAGE_WRAP:"data-overlay-page-wrap",
+        DATA_TRIGGER:"data-overlay-trigger",
         FOCUSABLE:"a[href],input,select,textarea,button,[tabindex]"
 	};
 	
@@ -71,6 +72,7 @@ var Overlay = (function(){
 			
 			var frame = document.createElement("div");
 			frame.setAttribute("id", _consts.ID_FRAME);
+			frame.setAttribute("tabindex", 0);
 			frame.setAttribute("role", "dialog");
 			_vars._frame = frame;
 			
@@ -91,6 +93,22 @@ var Overlay = (function(){
             var pageWrap = document.querySelector("[" + _consts.DATA_PAGE_WRAP + "]");
             if (pageWrap){
                 _instance.pageWrap = pageWrap;
+            }
+            
+            var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
+            var anchorTriggersLen = anchorTriggers.length;
+            for (var i = 0; i < anchorTriggersLen; i++){
+                var anchorTrigger = anchorTriggers[i];
+                var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
+                if (!id.length){
+                    id = anchorTrigger.getAttribute("href");
+                }
+                if (id.substr(0, 1) == "#"){
+                    id = id.substr(1, id.length - 1);
+                }
+                OOP.addEventListener(anchorTrigger, "click", function(){
+                    _instance.show(id);
+                });
             }
 		},
 		
@@ -142,6 +160,20 @@ var Overlay = (function(){
 			_vars._showCallback = null;
 			_vars._hideCallback = null;
             _vars._lastFocus = null;
+            
+            var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
+            var anchorTriggersLen = anchorTriggers.length;
+            for (var i = 0; i < anchorTriggersLen; i++){
+                var anchorTrigger = anchorTriggers[i];
+                var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
+                if (!id.length){
+                    id = anchorTrigger.getAttribute("href");
+                }
+                if (id.substr(0, 1) == "#"){
+                    id = id.substr(1, id.length - 1);
+                }
+                OOP.removeEventListener(anchorTrigger, "click");
+            }
 		},
 		
 		show:function(contentID, options, callback){
@@ -265,7 +297,7 @@ var Overlay = (function(){
             }
             var focusable = content.querySelector(_consts.FOCUSABLE);
             if (!focusable){
-                focusable = close;
+                focusable = frame;
             }
             focusable.focus();
             

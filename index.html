@@ -36,9 +36,9 @@
 	<body>
 		<!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
         <div id="container" data-overlay-page-wrap>
-			<a id="overlayTrigger1" href="#">OPEN OVERLAY 1</a>
-			<a id="overlayTrigger2" href="#">OPEN OVERLAY 2</a>
-			<a id="overlayTrigger3" href="#">OPEN OVERLAY 3</a>
+			<a id="overlayTrigger1" href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
+			<a id="overlayTrigger2" href="#myOverlay2" data-overlay-trigger>OPEN OVERLAY 2</a>
+			<a id="overlayTrigger3" href="#myOverlay3" data-overlay-trigger>OPEN OVERLAY 3</a>
 		</div>
 		
 		<!-- This container serves as a place for your overlays to live when they are not open -->
@@ -64,7 +64,8 @@
 		<script type="text/javascript" src="js/Overlay.js"></script>
 		
 		<!-- Using jQUERY -->
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+		<!--
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script type="text/javascript">
 			$("#overlayTrigger1").on("click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -102,14 +103,15 @@
 				console.log("AFTER HIDE"/*, evt*/);
 			});
 		</script>
-        
+        -->
         
         
         
         
         <!-- Also works without jQuery -->
         <!-- Without jQuery you can use the built in OOP object for events -->
-		<!--<script type="text/javascript">
+		<!--
+        <script type="text/javascript">
 			var trigger1 = document.getElementById("overlayTrigger1");
 			OOP.addEventListener(trigger1, "click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -148,6 +150,7 @@
 			OOP.addEventListener(Overlay, Overlay.EVENT_AFTER_HIDE, function(evt){
 				console.log("AFTER HIDE"/*, evt*/);
 			});
-		</script>-->
+		</script>
+        -->
 	</body>
 </html>
