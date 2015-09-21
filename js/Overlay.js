@@ -41,6 +41,12 @@ var Overlay = (function(){
         DATA_CONTAINER:"data-overlay-container",
         DATA_PAGE_WRAP:"data-overlay-page-wrap",
         DATA_TRIGGER:"data-overlay-trigger",
+        DATA_WIDTH:"data-overlay-width",
+        DATA_HEIGHT:"data-overlay-height",
+        DATA_OFFSET_X:"data-overlay-offset-x",
+        DATA_OFFSET_Y:"data-overlay-offset-y",
+        DATA_CONTAINER_CLASS:"data-overlay-container-class",
+        DATA_USER_CLOSABLE:"data-overlay-user-closable",
         FOCUSABLE:"a[href],input,select,textarea,button,[tabindex]"
 	};
 	
@@ -98,17 +104,23 @@ var Overlay = (function(){
             var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
             var anchorTriggersLen = anchorTriggers.length;
             for (var i = 0; i < anchorTriggersLen; i++){
-                var anchorTrigger = anchorTriggers[i];
-                var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
-                if (!id.length){
-                    id = anchorTrigger.getAttribute("href");
-                }
-                if (id.substr(0, 1) == "#"){
-                    id = id.substr(1, id.length - 1);
-                }
-                OOP.addEventListener(anchorTrigger, "click", function(){
-                    _instance.show(id);
-                });
+                (function(i){
+                    var anchorTrigger = anchorTriggers[i];
+                    var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
+                    if (!id.length){
+                        id = anchorTrigger.getAttribute("href");
+                    }
+                    if (id.substr(0, 1) == "#"){
+                        id = id.substr(1, id.length - 1);
+                    }
+                    OOP.addEventListener(anchorTrigger, "click", function(evt){
+                        if (typeof evt.preventDefault !== typeof undefined){
+                            evt.preventDefault();
+                        }
+                        _instance.show(id);
+                        return false;
+                    });
+                })(i);
             }
 		},
 		
@@ -177,6 +189,9 @@ var Overlay = (function(){
 		},
 		
 		show:function(contentID, options, callback){
+            if (typeof options == typeof undefined){
+                options = {};
+            }
 			_vars._showCallback = callback;
 			ClassHelper.addClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
@@ -189,30 +204,59 @@ var Overlay = (function(){
 				return;
 			}
 			
-			//Parse parameters
+			//Parse parameters. Method parameters take priority over data attributes on content
+            var content = document.getElementById(contentID);
 			var width, height, offsetX, offsetY;
 			var containerClass = "";
 			var userClosable = true;
-            if (typeof options !== typeof undefined){
-				if (typeof options.width !== typeof undefined){
-					width = options.width;
-				}
-				if (typeof options.height !== typeof undefined){
-					height = options.height;
-				}
-				if (typeof options.offsetX !== typeof undefined){
-					offsetX = options.offsetX;
-				}
-				if (typeof options.offsetY !== typeof undefined){
-					offsetY = options.offsetY;
-				}
-				if (typeof options.containerClass !== typeof undefined){
-					containerClass = options.containerClass;
-				}
-                if (typeof options.userClosable !== typeof undefined){
-					userClosable = options.userClosable;
-				}
-			}
+            if (typeof options.width !== typeof undefined){
+                width = options.width;
+            } else {
+                var dataWidth = content.getAttribute(_consts.DATA_WIDTH);
+                if (dataWidth && dataWidth.length){
+                    width = dataWidth;
+                }
+            }
+            if (typeof options.height !== typeof undefined){
+                height = options.height;
+            } else {
+                var dataHeight = content.getAttribute(_consts.DATA_HEIGHT);
+                if (dataHeight && dataHeight.length){
+                    height = dataHeight;
+                }
+            }
+            if (typeof options.offsetX !== typeof undefined){
+                offsetX = options.offsetX;
+            } else {
+                var dataOffsetX = content.getAttribute(_consts.DATA_OFFSET_X);
+                if (dataOffsetX && dataOffsetX.length){
+                    offsetX = dataOffsetX;
+                }
+            }
+            if (typeof options.offsetY !== typeof undefined){
+                offsetY = options.offsetY;
+            } else {
+                var dataOffsetY = content.getAttribute(_consts.DATA_OFFSET_Y);
+                if (dataOffsetY && dataOffsetY.length){
+                    offsetY = dataOffsetY;
+                }
+            }
+            if (typeof options.containerClass !== typeof undefined){
+                containerClass = options.containerClass;
+            } else {
+                var dataContainerClass = content.getAttribute(_consts.DATA_CONTAINER_CLASS);
+                if (dataContainerClass && dataContainerClass.length){
+                    containerClass = dataContainerClass;
+                }
+            }
+            if (typeof options.userClosable !== typeof undefined){
+                userClosable = options.userClosable.toLowerCase() == "true";
+            } else {
+                var dataUserClosable = content.getAttribute(_consts.DATA_USER_CLOSABLE);
+                if (dataUserClosable && dataUserClosable.length){
+                    userClosable = dataUserClosable.toLowerCase() == "true";
+                }
+            }
 			
 			//Cache
 			var container = _vars._container;
@@ -221,7 +265,6 @@ var Overlay = (function(){
 			var close = _vars._close;
 			
 			//Set frame dimensions to content dimensions and apply parameter overrides
-			var content = document.getElementById(contentID);
 			content._overlayData = content._overlayData || {};
 			if (typeof width === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
@@ -405,12 +448,18 @@ var Overlay = (function(){
 		},
 		
 		_handler_close_click:function(evt){
+            if (typeof evt.preventDefault !== typeof undefined){
+                evt.preventDefault();
+            }
 			_instance.hide();
 			return false;
 		},
 		
 		_handler_background_click:function(evt){
-			_instance.hide();
+			if (typeof evt.preventDefault !== typeof undefined){
+                evt.preventDefault();
+            }
+            _instance.hide();
 			return false;
 		},
         
