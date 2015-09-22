@@ -1,7 +1,7 @@
 ##Overlay##
 *By: AJ Savino*
 
-Overlay.js - A simple responsive modal system for the web. Works down to IE8. Easy to customize. jQuery not required.
+Overlay.js - A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
 
 ###Implementation###
 Include JS and CSS files on your page
