@@ -1,5 +1,5 @@
 /*
-* Overlay v1.3.0 Copyright (c) 2015 AJ Savino
+* Overlay v1.3.1 Copyright (c) 2015 AJ Savino
 * https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,7 +37,6 @@ var Overlay = (function(){
 		ID_CLOSE:"overlayClose",
 		CLASS_FRAME_VISIBLE:"visible",
 		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible",
-		CLASS_CLOSE_HIDDEN:"hidden",
         DATA_CONTAINER:"data-overlay-container",
         DATA_PAGE_WRAP:"data-overlay-page-wrap",
         DATA_TRIGGER:"data-overlay-trigger",
@@ -78,8 +77,8 @@ var Overlay = (function(){
 			
 			var frame = document.createElement("div");
 			frame.setAttribute("id", _consts.ID_FRAME);
+			frame.setAttribute("role", "alert");
 			frame.setAttribute("tabindex", 0);
-			frame.setAttribute("role", "dialog");
 			_vars._frame = frame;
 			
 			var close = document.createElement("button");
@@ -127,10 +126,11 @@ var Overlay = (function(){
 		destroy:function(){
 			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			
+            OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
-                ClassHelper.removeClass(close, _consts.CLASS_CLOSE_HIDDEN);
+                close.removeAttribute("disabled");
 			}
 			_vars._close = null;
 			
@@ -307,12 +307,13 @@ var Overlay = (function(){
 			_vars._content = content;
 			
 			//Wire events
+            OOP.addEventListener(document, "focusin", _methods._handler_document_focusin);
             if (userClosable){
                 OOP.addEventListener(background, "click", _methods._handler_background_click);
                 OOP.addEventListener(close, "click", _methods._handler_close_click);
                 OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
             } else {
-                ClassHelper.addClass(close, _consts.CLASS_CLOSE_HIDDEN);
+                close.setAttribute("disabled", "disabled");
             }
 			
 			//Append content
@@ -365,10 +366,11 @@ var Overlay = (function(){
 			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_HIDE));
 			
 			//Unwire events
+            OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
-                ClassHelper.removeClass(close, _consts.CLASS_CLOSE_HIDDEN);
+                close.removeAttribute("disabled");
 			}
 			var background = _vars._background;
 			if (background){
@@ -466,6 +468,15 @@ var Overlay = (function(){
         _handler_document_keyUp:function(evt){
             if (evt.keyCode == 27){ //Escape
                 _instance.hide();   
+            }
+        },
+        
+        _handler_document_focusin:function(evt){
+            var target = evt.target;
+            var frame = _vars._frame;
+            if (target != frame && !frame.contains(target)){
+                evt.stopPropagation();
+                frame.focus();
             }
         }
 	};

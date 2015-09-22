@@ -71,7 +71,7 @@ body.overlay-visible {
             top:-99999px;
             left:-99999px;
         }
-		
+        
 		#overlayClose {
 			position:absolute;
 			width:32px;
@@ -82,8 +82,17 @@ body.overlay-visible {
 			cursor:pointer;
             text-indent:-99999px;
             
-            &.hidden {
-                display:none;
+            &[disabled] {
+                cursor:default;
+                
+                &:after {
+                    background-color:#888;
+                }
+                &:hover {
+                    &:after {
+                        background-color:#888;
+                    }
+                }
             }
 			
 			&:after {
@@ -111,11 +120,6 @@ body.overlay-visible {
 			&:hover {
 				&:after {
 					background-color:#333;
-				}
-			}
-			&:active {
-				&:after {
-					background-color:#AAA;
 				}
 			}
 		}
