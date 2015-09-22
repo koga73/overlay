@@ -61,15 +61,14 @@ body.overlay-visible {
         //Accessibility Section 508 and WCAG 2.0
         &:before {
             content:"Dialog Start";
-        }
-        &:after {
-            content:"Dialog End";
-        }
-        &:before, &:after {
             display:inline-block;
             position:absolute;
             top:-99999px;
             left:-99999px;
+        }
+        
+        .overlay-content {
+			outline:none;
         }
         
 		#overlayClose {

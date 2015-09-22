@@ -54,16 +54,13 @@ body.overlay-visible {
 }
 #overlayContainer #overlayFrame:before {
   content: "Dialog Start";
-}
-#overlayContainer #overlayFrame:after {
-  content: "Dialog End";
-}
-#overlayContainer #overlayFrame:before,
-#overlayContainer #overlayFrame:after {
   display: inline-block;
   position: absolute;
   top: -99999px;
   left: -99999px;
+}
+#overlayContainer #overlayFrame .overlay-content {
+  outline: none;
 }
 #overlayContainer #overlayFrame #overlayClose {
   position: absolute;

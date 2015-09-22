@@ -1,5 +1,5 @@
 /*
-* Overlay v1.3.1 Copyright (c) 2015 AJ Savino
+* Overlay v1.3.2 Copyright (c) 2015 AJ Savino
 * https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -37,6 +37,8 @@ var Overlay = (function(){
 		ID_CLOSE:"overlayClose",
 		CLASS_FRAME_VISIBLE:"visible",
 		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible",
+		CLASS_CONTENT:"overlay-content",
+		ID_FRAME:"overlayFrame",
         DATA_CONTAINER:"data-overlay-container",
         DATA_PAGE_WRAP:"data-overlay-page-wrap",
         DATA_TRIGGER:"data-overlay-trigger",
@@ -78,7 +80,7 @@ var Overlay = (function(){
 			var frame = document.createElement("div");
 			frame.setAttribute("id", _consts.ID_FRAME);
 			frame.setAttribute("role", "alert");
-			frame.setAttribute("tabindex", 0);
+			frame.setAttribute("tabindex", "-1");
 			_vars._frame = frame;
 			
 			var close = document.createElement("button");
@@ -115,7 +117,9 @@ var Overlay = (function(){
                     OOP.addEventListener(anchorTrigger, "click", function(evt){
                         if (typeof evt.preventDefault !== typeof undefined){
                             evt.preventDefault();
-                        }
+                        } else {
+							evt.returnValue = false;
+						}
                         _instance.show(id);
                         return false;
                     });
@@ -127,6 +131,8 @@ var Overlay = (function(){
 			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
 			
             OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
+            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
+            
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
@@ -149,6 +155,8 @@ var Overlay = (function(){
 					content._overlayData.parent.appendChild(content);
 				}
 				content._overlayData = null;
+				content.removeAttribute("tabindex");
+				ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
 			}
 			_vars._content = null;
 			
@@ -158,8 +166,6 @@ var Overlay = (function(){
 			}
 			_vars._background = null;
             
-            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
-			
             var container = _vars._container;
             if (container){
 				container.setAttribute("class", "");
@@ -265,6 +271,8 @@ var Overlay = (function(){
 			var close = _vars._close;
 			
 			//Set frame dimensions to content dimensions and apply parameter overrides
+			ClassHelper.addClass(content, _consts.CLASS_CONTENT);
+			content.setAttribute("tabindex", "0");
 			content._overlayData = content._overlayData || {};
 			if (typeof width === typeof undefined){
 				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
@@ -309,9 +317,9 @@ var Overlay = (function(){
 			//Wire events
             OOP.addEventListener(document, "focusin", _methods._handler_document_focusin);
             if (userClosable){
+                OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
                 OOP.addEventListener(background, "click", _methods._handler_background_click);
                 OOP.addEventListener(close, "click", _methods._handler_close_click);
-                OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
             } else {
                 close.setAttribute("disabled", "disabled");
             }
@@ -367,6 +375,8 @@ var Overlay = (function(){
 			
 			//Unwire events
             OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
+            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
+            
 			var close = _vars._close;
 			if (close){
 				OOP.removeEventListener(close, "click", _methods._handler_close_click);
@@ -376,7 +386,6 @@ var Overlay = (function(){
 			if (background){
 				OOP.removeEventListener(background, "click", _methods._handler_background_click);
 			}
-            OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
             
 			//Wait for transition before completing hide
 			var frame = _vars._frame;
@@ -421,6 +430,8 @@ var Overlay = (function(){
 					content._overlayData.parent.appendChild(content);
 				}
 				content._overlayData = null;
+				content.removeAttribute("tabindex");
+				ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
 			}
 			_vars._content = null;
 			
@@ -452,6 +463,8 @@ var Overlay = (function(){
 		_handler_close_click:function(evt){
             if (typeof evt.preventDefault !== typeof undefined){
                 evt.preventDefault();
+            } else {
+				evt.returnValue = false;
             }
 			_instance.hide();
 			return false;
@@ -460,6 +473,8 @@ var Overlay = (function(){
 		_handler_background_click:function(evt){
 			if (typeof evt.preventDefault !== typeof undefined){
                 evt.preventDefault();
+            } else {
+				evt.returnValue = false;
             }
             _instance.hide();
 			return false;
@@ -472,10 +487,14 @@ var Overlay = (function(){
         },
         
         _handler_document_focusin:function(evt){
-            var target = evt.target;
+            var target = evt.target || evt.srcElement;
             var frame = _vars._frame;
             if (target != frame && !frame.contains(target)){
-                evt.stopPropagation();
+                if (typeof evt.stopPropagation !== typeof undefined){
+					evt.stopPropagation();
+				} else {
+					evt.cancelBubble = true;
+				}
                 frame.focus();
             }
         }
