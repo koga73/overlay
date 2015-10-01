@@ -1,5 +1,5 @@
 /*
-* Overlay v1.3.2 Copyright (c) 2015 AJ Savino
+* Overlay v1.3.3 Copyright (c) 2015 AJ Savino
 * https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -79,8 +79,6 @@ var Overlay = (function(){
 			
 			var frame = document.createElement("div");
 			frame.setAttribute("id", _consts.ID_FRAME);
-			frame.setAttribute("role", "alert");
-			frame.setAttribute("tabindex", "-1");
 			_vars._frame = frame;
 			
 			var close = document.createElement("button");
@@ -349,7 +347,7 @@ var Overlay = (function(){
             }
             var focusable = content.querySelector(_consts.FOCUSABLE);
             if (!focusable){
-                focusable = frame;
+                focusable = content;
             }
             focusable.focus();
             
@@ -495,7 +493,10 @@ var Overlay = (function(){
 				} else {
 					evt.cancelBubble = true;
 				}
-                frame.focus();
+				var content = _vars._content;
+				if (content){
+					content.focus();
+				}
             }
         }
 	};
