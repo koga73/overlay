@@ -1,5 +1,5 @@
 /*
-* Overlay v1.3.3 Copyright (c) 2015 AJ Savino
+* Overlay v1.3.4 Copyright (c) 2015 AJ Savino
 * https://github.com/koga73/Overlay
 * 
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -345,7 +345,7 @@ var Overlay = (function(){
                     pageWrap.setAttribute("tabindex", "-1");
                 }
             }
-            var focusable = content.querySelector(_consts.FOCUSABLE);
+            var focusable = null; //content.querySelector(_consts.FOCUSABLE);
             if (!focusable){
                 focusable = content;
             }
