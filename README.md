@@ -105,7 +105,7 @@ Overlay.show("{ID}", {
 
 ----------
 
-####Events####
+#### Events
 ```
 /* With jQuery */
 
