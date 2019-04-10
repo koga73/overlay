@@ -3,6 +3,11 @@
 
 A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
 
+## Install:
+```
+npm i @koga73/overlay
+```
+
 ## Implementation
 Include JS and CSS files on your page
 
