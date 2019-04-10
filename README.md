@@ -1,13 +1,13 @@
-##Overlay##
+# Overlay
 *By: AJ Savino*
 
-Overlay.js - A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
+A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
 
-###Implementation###
+## Implementation
 Include JS and CSS files on your page
 
-HTML
-```html
+#### HTML
+```
 <!-- This container serves as a place for your overlays to live when they are not open -->
 <div style="display:none;">
 	<!-- Each overlay needs an id -->
@@ -19,15 +19,13 @@ HTML
 	</div>
 </div>
 ```
-```html
+```
 <!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
 <div id="container" data-overlay-page-wrap>
-	<a id="overlayTrigger1" href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
-	<a id="overlayTrigger2" href="#myOverlay2" data-overlay-trigger>OPEN OVERLAY 2</a>
-	<a id="overlayTrigger3" href="#myOverlay3" data-overlay-trigger>OPEN OVERLAY 3</a>
+	<a href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
 </div>
 ```
-```html
+```
 <!-- Optional data attributes for each overlay -->
 <div id="myOverlay1"
 	 data-overlay-width="600px"
@@ -35,14 +33,13 @@ HTML
 	 data-overlay-offset-x="-200px"
 	 data-overlay-offset-y="20%"
 	 data-overlay-container-class="slide-down"
-	 data-overlay-user-closable="false"
->
+	 data-overlay-user-closable="false">
 	<h1>TEST CONTENT 1</h1>
 </div>
 ```
 
-CSS
-```css
+#### CSS
+```
 /* By default an overlay will size to the content */
 /* However you can choose to explicitly set the width and/or height */
 /* The overlay system will apply these dimensions to the frame. The content becomes 100%. */
@@ -54,10 +51,11 @@ CSS
 
 ----------
 
-####JavaScript API####
+## JavaScript API
 JavaScript
-```javascript
+```
 //Show an overlay. Second and third parameters optional. See below for parameter info
+//First parameter can be an HTML element (document.createElement)
 Overlay.show("myOverlay1", {
 	containerClass:"slide-up"
 }, myCallback);
@@ -65,7 +63,7 @@ Overlay.show("myOverlay1", {
 //Hide the current overlay. Parameters optional
 Overlay.hide(myCallback);
 ```
-```javascript
+```
 /* Events */
 Overlay.EVENT_BEFORE_SHOW
 Overlay.EVENT_AFTER_SHOW
@@ -108,7 +106,7 @@ Overlay.show("{ID}", {
 ----------
 
 ####Events####
-```javascript
+```
 /* With jQuery */
 
 $("#triggerLink").on("click", function(evt){

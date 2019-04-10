@@ -1,72 +1,82 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
-        <title>Overlay.js</title>
+		<title>Overlay.js</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8;"/>
-		
-        <!-- Include Overlay.js styles -->
-        <link href="css/overlay.css" type="text/css" rel="stylesheet"/>
-        
-        <!-- Custom styles for each overlay -->
+
+		<!-- Include Overlay.js styles -->
+		<link href="css/overlay.css" type="text/css" rel="stylesheet"/>
+
+		<!-- Custom styles for each overlay -->
 		<style type="text/css">
 			/* Simple reset */
-            * {
+			* {
 				margin:0;
 				border:0;
 				padding:0;
 			}
-            
-            a {
-                display:block;
-                margin:16px;
-            }
-            
-            #myOverlay1 {
-                width:600px;
-                height:400px;
-            }
-            #myOverlay2 {
-                width:50%;
-                height:50%;
-            }
-            #myOverlay3 {
-                
-            }
+
+			a {
+				display:block;
+				margin:16px;
+			}
+
+			#myOverlay1 {
+				width:600px;
+				height:400px;
+			}
+			#myOverlay2 {
+				width:50%;
+				height:50%;
+			}
+			#myOverlay3 {
+
+			}
 		</style>
 	</head>
 	<body>
 		<!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
-        <div id="container" data-overlay-page-wrap>
-			<a id="overlayTrigger1" href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
-			<a id="overlayTrigger2" href="#myOverlay2" data-overlay-trigger>OPEN OVERLAY 2</a>
-			<a id="overlayTrigger3" href="#myOverlay3" data-overlay-trigger>OPEN OVERLAY 3</a>
+		<div id="container" data-overlay-page-wrap>
+			<a href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
+			<a href="#myOverlay2" data-overlay-trigger>OPEN OVERLAY 2</a>
+			<a href="#myOverlay3" data-overlay-trigger>OPEN OVERLAY 3</a>
 		</div>
-		
+
 		<!-- This container serves as a place for your overlays to live when they are not open -->
 		<div style="display:none;">
 			<!-- Each overlay needs an id. The aria-labelledby is not required but is best practice -->
-			<div id="myOverlay1" aria-labelledby="myOverlay1Heading" data-overlay-container-class="slide-up" role="region">
+			<div id="myOverlay1" aria-labelledby="myOverlay1Heading" data-overlay-container-class="slide-up">
 				<h1 id="myOverlay1Heading">TEST CONTENT 1</h1>
-                <input type="text"/>
 			</div>
-			<div id="myOverlay2" aria-labelledby="myOverlay2Heading" data-overlay-container-class="slide-down" role="region">
+			<div id="myOverlay2" aria-labelledby="myOverlay2Heading" data-overlay-container-class="slide-down">
 				<h1 id="myOverlay2Heading">TEST CONTENT 2</h1>
 			</div>
-			<div id="myOverlay3" aria-labelledby="myOverlay3Heading" data-overlay-container-class="slide-right" role="region">
+			<div id="myOverlay3" aria-labelledby="myOverlay3Heading" data-overlay-container-class="slide-right">
 				<h1 id="myOverlay3Heading">TEST CONTENT 3</h1>
 			</div>
 		</div>
-		
-        
-        
-        
-        
-        <!-- Include Overlay.js -->
-		<script type="text/javascript" src="js/Overlay.js"></script>
-		
+
+
+		<!-- OOP dependency used for events -->
+		<script src="node_modules/@koga73/oop/OOP.js"></script>
+		<!-- Include Overlay.js -->
+		<script src="js/Overlay.js"></script>
+
+
+		<script>
+			var div = document.createElement("div");
+			div.innerHTML = "TEST CONTENT";
+			Overlay.show(div, {
+				containerClass:"slide-up",
+				//width:"50%",
+				//height:"50%",
+				//userClosable:false
+			});
+		</script>
+
 		<!-- Using jQUERY -->
 		<!--
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script type="text/javascript">
 			$("#overlayTrigger1").on("click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -74,22 +84,22 @@
 				});
 				return false;
 			});
-			
+
 			$("#overlayTrigger2").on("click", function(evt){
 				Overlay.show("myOverlay2", {
 					containerClass:"slide-down"
 				});
 				return false;
 			});
-			
+
 			$("#overlayTrigger3").on("click", function(evt){
 				Overlay.show("myOverlay3", {
 					containerClass:"slide-right"
 				});
 				return false;
 			});
-			
-			
+
+
 			//Optional: Events fired
 			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt){
 				console.log("BEFORE SHOW"/*, evt*/);
@@ -104,15 +114,15 @@
 				console.log("AFTER HIDE"/*, evt*/);
 			});
 		</script>
-        -->
-        
-        
-        
-        
-        <!-- Also works without jQuery -->
-        <!-- Without jQuery you can use the built in OOP object for events -->
+		-->
+
+
+
+
+		<!-- Also works without jQuery -->
+		<!-- Without jQuery you can use the built in OOP object for events -->
 		<!--
-        <script type="text/javascript">
+		<script type="text/javascript">
 			var trigger1 = document.getElementById("overlayTrigger1");
 			OOP.addEventListener(trigger1, "click", function(evt){
 				Overlay.show("myOverlay1", {
@@ -120,7 +130,7 @@
 				});
 				return false;
 			});
-			
+
 			var trigger2 = document.getElementById("overlayTrigger2");
 			OOP.addEventListener(trigger2, "click", function(evt){
 				Overlay.show("myOverlay2", {
@@ -128,7 +138,7 @@
 				});
 				return false;
 			});
-			
+
 			var trigger3 = document.getElementById("overlayTrigger3");
 			OOP.addEventListener(trigger3, "click", function(evt){
 				Overlay.show("myOverlay3", {
@@ -136,8 +146,8 @@
 				});
 				return false;
 			});
-			
-			
+
+
 			//Optional: Events fired
 			OOP.addEventListener(Overlay, Overlay.EVENT_BEFORE_SHOW, function(evt){
 				console.log("BEFORE SHOW"/*, evt*/);
@@ -152,6 +162,6 @@
 				console.log("AFTER HIDE"/*, evt*/);
 			});
 		</script>
-        -->
+		-->
 	</body>
 </html>
