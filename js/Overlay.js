@@ -1,5 +1,5 @@
 /*
-* Overlay v2.0.0 Copyright (c) 2019 AJ Savino
+* Overlay v2.0.1 Copyright (c) 2019 AJ Savino
 * https://github.com/koga73/Overlay
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -54,7 +54,7 @@ var Overlay = (function(){
 	};
 
 	var _vars = {
-		container:document.body,
+		container:null,
 		pageWrap:null,
 
 		_container:null,
@@ -336,6 +336,13 @@ var Overlay = (function(){
 			frame.insertBefore(content, close);
 
 			//Append container
+			if (!_instance.container){
+				if (document.body){
+					_instance.container = document.body;
+				} else {
+					throw new Error("Container is undefined");
+				}
+			}
 			var appendContainer = _instance.container;
 			if (_instance.container.length){
 				appendContainer = _instance.container[0];
@@ -624,6 +631,8 @@ var Overlay = (function(){
 		hide:_methods.hide,
 		show:_methods.show
 	};
-	_instance.init();
+	if (document.body){
+		_instance.init();
+	}
 	return _instance;
 })();
