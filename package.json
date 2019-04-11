@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/koga73/Overlay#readme",
   "dependencies": {
-    "@koga73/oop": "^2.0.1",
+    "@koga73/oop": "^2.0.4",
     "gulp": "^3.9.1",
     "gulp-sass": "^4.0.1"
   }
