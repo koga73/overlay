@@ -1,6 +1,6 @@
 # Overlay
 
-A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
+A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. Vanilla JS.
 
 ## Install:
 ```
