@@ -1,5 +1,5 @@
 /*
-* Overlay v2.0.1 Copyright (c) 2019 AJ Savino
+* Overlay v2.0.2 Copyright (c) 2019 AJ Savino
 * https://github.com/koga73/Overlay
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy

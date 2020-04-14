@@ -1,7 +1,6 @@
 # Overlay
-*By: AJ Savino*
 
-A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. jQuery not required.
+A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. Vanilla JS.
 
 ## Install:
 ```
@@ -12,7 +11,7 @@ npm i @koga73/overlay
 Include JS and CSS files on your page
 
 #### HTML
-```
+```html
 <!-- This container serves as a place for your overlays to live when they are not open -->
 <div style="display:none;">
 	<!-- Each overlay needs an id -->
@@ -24,13 +23,13 @@ Include JS and CSS files on your page
 	</div>
 </div>
 ```
-```
+```html
 <!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
 <div id="container" data-overlay-page-wrap>
 	<a href="#myOverlay1" data-overlay-trigger>OPEN OVERLAY 1</a>
 </div>
 ```
-```
+```html
 <!-- Optional data attributes for each overlay -->
 <div id="myOverlay1"
 	 data-overlay-width="600px"
@@ -44,7 +43,7 @@ Include JS and CSS files on your page
 ```
 
 #### CSS
-```
+```css
 /* By default an overlay will size to the content */
 /* However you can choose to explicitly set the width and/or height */
 /* The overlay system will apply these dimensions to the frame. The content becomes 100%. */
@@ -56,9 +55,9 @@ Include JS and CSS files on your page
 
 ----------
 
-## JavaScript API
-JavaScript
-```
+## JS API
+JS
+```js
 //Show an overlay. Second and third parameters optional. See below for parameter info
 //First parameter can be an HTML element (document.createElement)
 Overlay.show("myOverlay1", {
@@ -68,7 +67,9 @@ Overlay.show("myOverlay1", {
 //Hide the current overlay. Parameters optional
 Overlay.hide(myCallback);
 ```
-```
+
+###### Full Api
+```js
 /* Events */
 Overlay.EVENT_BEFORE_SHOW
 Overlay.EVENT_AFTER_SHOW
@@ -111,7 +112,7 @@ Overlay.show("{ID}", {
 ----------
 
 #### Events
-```
+```js
 /* With jQuery */
 
 $("#triggerLink").on("click", function(evt){
