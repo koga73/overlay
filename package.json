@@ -4,9 +4,10 @@
 	"description": "A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. No Dependencies. Vanilla JS.",
 	"main": "js/overlay.js",
 	"module": "js/module.js",
+	"style": "css/overlay.css",
 	"scripts": {
 		"build": "npm run sass",
-		"sass": "node-sass --include-path ./css ./css/overlay.scss ./css/overlay.css --output-style uncompressed",
+		"sass": "node-sass --include-path ./css ./css/overlay.scss ./css/overlay.css --output-style compressed",
 		"watch": "nodemon -e sass,scss -x \"npm run sass\""
 	},
 	"repository": {
