@@ -1,638 +1,947 @@
 /*
-* Overlay v2.0.2 Copyright (c) 2019 AJ Savino
-* https://github.com/koga73/Overlay
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
-var Overlay = (function(){
-	var _instance;
+ * overlay v3.0.0 Copyright (c) 2020 AJ Savino
+ * https://github.com/koga73/overlay
+ * MIT License
+ */
+window["Overlay"] =
+	window["Overlay"] ||
+	(function() {
+		var _instance;
 
-	var _events = {
-		EVENT_BEFORE_SHOW:"beforeshow",
-		EVENT_AFTER_SHOW:"aftershow",
-		EVENT_BEFORE_HIDE:"beforehide",
-		EVENT_AFTER_HIDE:"afterhide"
-	};
+		var _events = {
+			EVENT_BEFORE_SHOW: "beforeshow",
+			EVENT_AFTER_SHOW: "aftershow",
+			EVENT_BEFORE_HIDE: "beforehide",
+			EVENT_AFTER_HIDE: "afterhide"
+		};
 
-	var _consts = {
-		ID_CONTAINER:"overlayContainer",
-		ID_BACKGROUND:"overlayBackground",
-		ID_FRAME:"overlayFrame",
-		ID_CLOSE:"overlayClose",
+		var _consts = {
+			ID_CONTAINER: "overlayContainer",
+			ID_BACKGROUND: "overlayBackground",
+			ID_FRAME: "overlayFrame",
+			ID_CLOSE: "overlayClose",
 
-		CLASS_FRAME_VISIBLE:"visible",
-		CLASS_BODY_OVERLAY_VISIBLE:"overlay-visible",
-		CLASS_CONTENT:"overlay-content",
+			CLASS_FRAME_VISIBLE: "visible",
+			CLASS_BODY_OVERLAY_VISIBLE: "overlay-visible",
+			CLASS_CONTENT: "overlay-content",
 
-		DATA_CONTAINER:"data-overlay-container",
-		DATA_PAGE_WRAP:"data-overlay-page-wrap",
-		DATA_TRIGGER:"data-overlay-trigger",
-		DATA_WIDTH:"data-overlay-width",
-		DATA_HEIGHT:"data-overlay-height",
-		DATA_OFFSET_X:"data-overlay-offset-x",
-		DATA_OFFSET_Y:"data-overlay-offset-y",
-		DATA_CONTAINER_CLASS:"data-overlay-container-class",
-		DATA_USER_CLOSABLE:"data-overlay-user-closable",
+			DATA_CONTAINER: "data-overlay-container",
+			DATA_PAGE_WRAP: "data-overlay-page-wrap",
+			DATA_TRIGGER: "data-overlay-trigger",
+			DATA_WIDTH: "data-overlay-width",
+			DATA_HEIGHT: "data-overlay-height",
+			DATA_OFFSET_X: "data-overlay-offset-x",
+			DATA_OFFSET_Y: "data-overlay-offset-y",
+			DATA_CONTAINER_CLASS: "data-overlay-container-class",
+			DATA_USER_CLOSABLE: "data-overlay-user-closable",
+			DATA_AUTO_FOCUS: "data-overlay-auto-focus",
+			DATA_IMMEDIATE: "data-overlay-immediate",
 
-		FOCUSABLE:"a[href],input,select,textarea,button,[tabindex]"
-	};
+			FOCUSABLE: "a[href],input,select,textarea,button,[tabindex]"
+		};
 
-	var _vars = {
-		container:null,
-		pageWrap:null,
+		var _vars = {
+			container: null,
+			pageWrap: null,
 
-		_container:null,
-		_background:null,
-		_content:null,
-		_frame:null,
-		_close:null,
+			_container: null,
+			_background: null,
+			_content: null,
+			_frame: null,
+			_close: null,
 
-		_showCallback:null,
-		_hideCallback:null,
+			_showCallback: null,
+			_hideCallback: null,
 
-		_lastFocus:null
-	};
+			_lastFocus: null,
+			_immediate: false
+		};
 
-	var _methods = {
-		init:function(){
-			var container = document.createElement("div");
-			container.setAttribute("id", _consts.ID_CONTAINER);
-			_vars._container = container;
+		var _methods = {
+			init: function() {
+				var container = document.createElement("div");
+				container.setAttribute("id", _consts.ID_CONTAINER);
+				_vars._container = container;
 
-			var background = document.createElement("div");
-			background.setAttribute("id", _consts.ID_BACKGROUND);
-			_vars._background = background;
+				var background = document.createElement("div");
+				background.setAttribute("id", _consts.ID_BACKGROUND);
+				_vars._background = background;
 
-			var frame = document.createElement("div");
-			frame.setAttribute("id", _consts.ID_FRAME);
-			_vars._frame = frame;
+				var frame = document.createElement("div");
+				frame.setAttribute("id", _consts.ID_FRAME);
+				_vars._frame = frame;
 
-			var close = document.createElement("button");
-			close.setAttribute("id", _consts.ID_CLOSE);
-			close.setAttribute("type", "button");
-			close.innerHTML = "Close";
-			_vars._close = close;
+				var close = document.createElement("button");
+				close.setAttribute("id", _consts.ID_CLOSE);
+				close.setAttribute("type", "button");
+				close.innerHTML = "Close";
+				_vars._close = close;
 
-			frame.appendChild(close);
-			container.appendChild(background);
-			container.appendChild(frame);
+				frame.appendChild(close);
+				container.appendChild(background);
+				container.appendChild(frame);
 
-			var container = document.querySelector("[" + _consts.DATA_CONTAINER + "]");
-			if (container){
-				_instance.container = container;
-			}
-			var pageWrap = document.querySelector("[" + _consts.DATA_PAGE_WRAP + "]");
-			if (pageWrap){
-				_instance.pageWrap = pageWrap;
-			}
+				var container = document.querySelector("[" + _consts.DATA_CONTAINER + "]");
+				if (container) {
+					_instance.container = container;
+				}
+				var pageWrap = document.querySelector("[" + _consts.DATA_PAGE_WRAP + "]");
+				if (pageWrap) {
+					_instance.pageWrap = pageWrap;
+				}
 
-			var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
-			var anchorTriggersLen = anchorTriggers.length;
-			for (var i = 0; i < anchorTriggersLen; i++){
-				(function(i){
+				var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
+				var anchorTriggersLen = anchorTriggers.length;
+				for (var i = 0; i < anchorTriggersLen; i++) {
+					(function(i) {
+						var anchorTrigger = anchorTriggers[i];
+						var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
+						if (!id.length) {
+							id = anchorTrigger.getAttribute("href");
+						}
+						if (id.substr(0, 1) == "#") {
+							id = id.substr(1, id.length - 1);
+						}
+						EventHelper.addEventListener(anchorTrigger, "click", function(evt) {
+							if (typeof evt.preventDefault !== typeof undefined) {
+								evt.preventDefault();
+							} else {
+								evt.returnValue = false;
+							}
+							_instance.show(id);
+							return false;
+						});
+					})(i);
+				}
+
+				//Add event methods
+				EventHelper.addEvents(_instance);
+			},
+
+			destroy: function() {
+				//Remove event methods
+				EventHelper.removeEvents(_instance);
+
+				ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
+
+				EventHelper.removeEventListener(document, "focusin", _methods._handler_document_focusin);
+				EventHelper.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
+
+				var close = _vars._close;
+				if (close) {
+					EventHelper.removeEventListener(close, "click", _methods._handler_close_click);
+					close.removeAttribute("disabled");
+				}
+				_vars._close = null;
+
+				_vars._frame = null;
+
+				var content = _vars._content;
+				if (content) {
+					content.parentNode.removeChild(content);
+					if (typeof content._overlayData.width !== typeof undefined) {
+						content.style.width = ""; //content._overlayData.width;
+					}
+					if (typeof content._overlayData.height !== typeof undefined) {
+						content.style.height = ""; //content._overlayData.height;
+					}
+					if (typeof content._overlayData.parent !== typeof undefined) {
+						if (content._overlayData.parent) {
+							content._overlayData.parent.appendChild(content);
+						}
+					}
+					content._overlayData = null;
+					content.removeAttribute("tabindex");
+					ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
+				}
+				_vars._content = null;
+
+				var background = _vars._background;
+				if (background) {
+					EventHelper.removeEventListener(background, "click", _methods._handler_background_click);
+				}
+				_vars._background = null;
+
+				var container = _vars._container;
+				if (container) {
+					container.setAttribute("class", "");
+					if (container.parentNode) {
+						container.parentNode.removeChild(container);
+					}
+				}
+				_vars._container = null;
+
+				_vars._showCallback = null;
+				_vars._hideCallback = null;
+				_vars._lastFocus = null;
+
+				var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
+				var anchorTriggersLen = anchorTriggers.length;
+				for (var i = 0; i < anchorTriggersLen; i++) {
 					var anchorTrigger = anchorTriggers[i];
 					var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
-					if (!id.length){
+					if (!id.length) {
 						id = anchorTrigger.getAttribute("href");
 					}
-					if (id.substr(0, 1) == "#"){
+					if (id.substr(0, 1) == "#") {
 						id = id.substr(1, id.length - 1);
 					}
-					OOP.addEventListener(anchorTrigger, "click", function(evt){
-						if (typeof evt.preventDefault !== typeof undefined){
-							evt.preventDefault();
-						} else {
-							evt.returnValue = false;
-						}
-						_instance.show(id);
-						return false;
+					EventHelper.removeEventListener(anchorTrigger, "click");
+				}
+			},
+
+			show: function(content, options, callback) {
+				//If string then grab from DOM otherwise it is a dynamic element passed in
+				var isStatic = typeof content === typeof "";
+				if (typeof options == typeof undefined) {
+					options = {};
+				}
+				_vars._showCallback = callback;
+				ClassHelper.addClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
+				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_BEFORE_SHOW, {content: content.id || content}));
+
+				//Hide current
+				if (_vars._content != null) {
+					_instance.hide(function() {
+						//Callback chaining
+						_instance.show(content, options, callback);
 					});
-				})(i);
-			}
-		},
-
-		destroy:function(){
-			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
-
-			OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
-			OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
-
-			var close = _vars._close;
-			if (close){
-				OOP.removeEventListener(close, "click", _methods._handler_close_click);
-				close.removeAttribute("disabled");
-			}
-			_vars._close = null;
-
-			_vars._frame = null;
-
-			var content = _vars._content;
-			if (content){
-				content.parentNode.removeChild(content);
-				if (typeof content._overlayData.width !== typeof undefined){
-					content.style.width = ""; //content._overlayData.width;
+					return;
 				}
-				if (typeof content._overlayData.height !== typeof undefined){
-					content.style.height = ""; //content._overlayData.height;
-				}
-				if (typeof content._overlayData.parent !== typeof undefined){
-					if (content._overlayData.parent){
-						content._overlayData.parent.appendChild(content);
+
+				//Parse parameters. Method parameters take priority over data attributes on content
+				var content = isStatic ? document.getElementById(content) : content;
+				var width, height, offsetX, offsetY;
+				var containerClass = "";
+				var userClosable = true;
+				var autoFocus = true;
+				var immediate = false;
+				if (typeof options.width !== typeof undefined) {
+					width = options.width;
+				} else {
+					var dataWidth = content.getAttribute(_consts.DATA_WIDTH);
+					if (dataWidth && dataWidth.length) {
+						width = dataWidth;
 					}
 				}
-				content._overlayData = null;
-				content.removeAttribute("tabindex");
-				ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
-			}
-			_vars._content = null;
-
-			var background = _vars._background;
-			if (background){
-				OOP.removeEventListener(background, "click", _methods._handler_background_click);
-			}
-			_vars._background = null;
-
-			var container = _vars._container;
-			if (container){
-				container.setAttribute("class", "");
-				if (container.parentNode){
-					container.parentNode.removeChild(container);
-				}
-			}
-			_vars._container = null;
-
-			_vars._showCallback = null;
-			_vars._hideCallback = null;
-			_vars._lastFocus = null;
-
-			var anchorTriggers = document.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
-			var anchorTriggersLen = anchorTriggers.length;
-			for (var i = 0; i < anchorTriggersLen; i++){
-				var anchorTrigger = anchorTriggers[i];
-				var id = anchorTrigger.getAttribute(_consts.DATA_TRIGGER);
-				if (!id.length){
-					id = anchorTrigger.getAttribute("href");
-				}
-				if (id.substr(0, 1) == "#"){
-					id = id.substr(1, id.length - 1);
-				}
-				OOP.removeEventListener(anchorTrigger, "click");
-			}
-		},
-
-		show:function(content, options, callback){
-			//If string then grab from DOM otherwise it is a dynamic element passed in
-			var isStatic = OOP.isString(content);
-			if (typeof options == typeof undefined){
-				options = {};
-			}
-			_vars._showCallback = callback;
-			ClassHelper.addClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
-			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_SHOW));
-
-			//Hide current
-			if (_vars._content != null){
-				_instance.hide(function(){ //Callback chaining
-					_instance.show(content, options, callback);
-				});
-				return;
-			}
-
-			//Parse parameters. Method parameters take priority over data attributes on content
-			var content = (isStatic) ? document.getElementById(content) : content;
-			var width, height, offsetX, offsetY;
-			var containerClass = "";
-			var userClosable = true;
-			if (typeof options.width !== typeof undefined){
-				width = options.width;
-			} else {
-				var dataWidth = content.getAttribute(_consts.DATA_WIDTH);
-				if (dataWidth && dataWidth.length){
-					width = dataWidth;
-				}
-			}
-			if (typeof options.height !== typeof undefined){
-				height = options.height;
-			} else {
-				var dataHeight = content.getAttribute(_consts.DATA_HEIGHT);
-				if (dataHeight && dataHeight.length){
-					height = dataHeight;
-				}
-			}
-			if (typeof options.offsetX !== typeof undefined){
-				offsetX = options.offsetX;
-			} else {
-				var dataOffsetX = content.getAttribute(_consts.DATA_OFFSET_X);
-				if (dataOffsetX && dataOffsetX.length){
-					offsetX = dataOffsetX;
-				}
-			}
-			if (typeof options.offsetY !== typeof undefined){
-				offsetY = options.offsetY;
-			} else {
-				var dataOffsetY = content.getAttribute(_consts.DATA_OFFSET_Y);
-				if (dataOffsetY && dataOffsetY.length){
-					offsetY = dataOffsetY;
-				}
-			}
-			if (typeof options.containerClass !== typeof undefined){
-				containerClass = options.containerClass;
-			} else {
-				var dataContainerClass = content.getAttribute(_consts.DATA_CONTAINER_CLASS);
-				if (dataContainerClass && dataContainerClass.length){
-					containerClass = dataContainerClass;
-				}
-			}
-			if (typeof options.userClosable !== typeof undefined){
-				userClosable = options.userClosable === true;
-			} else {
-				var dataUserClosable = content.getAttribute(_consts.DATA_USER_CLOSABLE);
-				if (dataUserClosable && dataUserClosable.length){
-					userClosable = dataUserClosable.toLowerCase() == "true";
-				}
-			}
-
-			//Cache
-			var container = _vars._container;
-			var background = _vars._background;
-			var frame = _vars._frame;
-			var close = _vars._close;
-
-			//Set frame dimensions to content dimensions and apply parameter overrides
-			ClassHelper.addClass(content, _consts.CLASS_CONTENT);
-			content.setAttribute("tabindex", "0");
-			content._overlayData = content._overlayData || {};
-			if (typeof width === typeof undefined){
-				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-					width = content.currentStyle.width;
+				if (typeof options.height !== typeof undefined) {
+					height = options.height;
 				} else {
-					width = window.getComputedStyle(content).width;
-				}
-			}
-			if (parseInt(width)){
-				frame.style.width = width;
-				content._overlayData.width = width;
-				content.style.width = "100%";
-			} else {
-				frame.style.width = "";
-			}
-			if (typeof height === typeof undefined){
-				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-					height = content.currentStyle.height;
-				} else {
-					height = window.getComputedStyle(content).height;
-				}
-			}
-			if (parseInt(height)){
-				frame.style.height = height;
-				content._overlayData.height = height;
-				content.style.height = "100%";
-			} else {
-				frame.style.height = "";
-			}
-			if (typeof offsetX !== typeof undefined){
-				frame.style.left = offsetX;
-			} else {
-				frame.style.left = "";
-			}
-			if (typeof offsetY !== typeof undefined){
-				frame.style.top = offsetY;
-			} else {
-				frame.style.top = "";
-			}
-			_vars._content = content;
-
-			//Wire events
-			OOP.addEventListener(document, "focusin", _methods._handler_document_focusin);
-			if (userClosable){
-				OOP.addEventListener(document, "keyup", _methods._handler_document_keyUp);
-				OOP.addEventListener(background, "click", _methods._handler_background_click);
-				OOP.addEventListener(close, "click", _methods._handler_close_click);
-			} else {
-				close.setAttribute("disabled", "disabled");
-			}
-
-			//Append content
-			content._overlayData.parent = content.parentNode;
-			if (isStatic){
-				content.parentNode.removeChild(content);
-			}
-			frame.insertBefore(content, close);
-
-			//Append container
-			if (!_instance.container){
-				if (document.body){
-					_instance.container = document.body;
-				} else {
-					throw new Error("Container is undefined");
-				}
-			}
-			var appendContainer = _instance.container;
-			if (_instance.container.length){
-				appendContainer = _instance.container[0];
-			}
-			appendContainer.appendChild(container);
-
-			//Save focus, accessibility focus trap, set focus to first focusable item
-			_vars._lastFocus = document.activeElement;
-			var pageWrap = _instance.pageWrap;
-			if (pageWrap){
-				if (pageWrap.contains(appendContainer)){
-					throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the modal container. They should be siblings instead.";
-				} else {
-					pageWrap.setAttribute("aria-hidden", "true");
-					pageWrap.setAttribute("tabindex", "-1");
-				}
-			}
-			var focusable = null; //content.querySelector(_consts.FOCUSABLE);
-			if (!focusable){
-				focusable = content;
-			}
-			focusable.focus();
-
-			//Add containerClass
-			ClassHelper.addClass(container, containerClass);
-			var timeout = setTimeout(function(){ //Delay needed for transition to render
-				clearTimeout(timeout);
-				ClassHelper.addClass(container, _consts.CLASS_FRAME_VISIBLE);
-			}, 50);
-
-			//Wait for transition before completing show
-			if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)){
-				TransitionHelper.offTransitionComplete(container);
-				TransitionHelper.onTransitionComplete(container, _methods._handler_show_complete);
-			} else {
-				_methods._handler_show_complete();
-			}
-		},
-
-		hide:function(callback){
-			_vars._hideCallback = callback;
-			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_BEFORE_HIDE));
-
-			//Unwire events
-			OOP.removeEventListener(document, "focusin", _methods._handler_document_focusin);
-			OOP.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
-
-			var close = _vars._close;
-			if (close){
-				OOP.removeEventListener(close, "click", _methods._handler_close_click);
-				close.removeAttribute("disabled");
-			}
-			var background = _vars._background;
-			if (background){
-				OOP.removeEventListener(background, "click", _methods._handler_background_click);
-			}
-
-			//Wait for transition before completing hide
-			var frame = _vars._frame;
-			var container = _vars._container;
-			if (container){
-				if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)){
-					TransitionHelper.offTransitionComplete(container);
-					TransitionHelper.onTransitionComplete(container, _methods._handler_hide_complete);
-				} else {
-					_methods._handler_hide_complete();
-				}
-				ClassHelper.removeClass(container, _consts.CLASS_FRAME_VISIBLE);
-			}
-		},
-
-		_handler_show_complete:function(){
-			TransitionHelper.offTransitionComplete(_vars._container);
-
-			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_SHOW));
-			var showCallback = _vars._showCallback;
-			if (typeof showCallback !== typeof undefined){
-				showCallback();
-				_vars._showCallback = null;
-			}
-		},
-
-		_handler_hide_complete:function(){
-			var container = _vars._container;
-			TransitionHelper.offTransitionComplete(container);
-
-			//Reset content
-			var content = _vars._content;
-			if (content){
-				content.parentNode.removeChild(content);
-				if (typeof content._overlayData.width !== typeof undefined){
-					content.style.width = ""; //content._overlayData.width;
-				}
-				if (typeof content._overlayData.height !== typeof undefined){
-					content.style.height = ""; //content._overlayData.height;
-				}
-				if (typeof content._overlayData.parent !== typeof undefined){
-					if (content._overlayData.parent){
-						content._overlayData.parent.appendChild(content);
+					var dataHeight = content.getAttribute(_consts.DATA_HEIGHT);
+					if (dataHeight && dataHeight.length) {
+						height = dataHeight;
 					}
 				}
-				content._overlayData = null;
-				content.removeAttribute("tabindex");
-				ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
-			}
-			_vars._content = null;
-
-			//Remove container
-			container.setAttribute("class", "");
-			container.parentNode.removeChild(container);
-
-			//Remove accessibility focus trap and restore focus
-			var pageWrap = _instance.pageWrap;
-			if (pageWrap){
-				pageWrap.removeAttribute("aria-hidden", "true");
-				pageWrap.removeAttribute("tabindex", "-1");
-			}
-			var lastFocus = _vars._lastFocus;
-			if (lastFocus){
-				lastFocus.focus();
-			}
-			_vars._lastFocus = null;
-
-			ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
-			OOP.dispatchEvent(_instance, new OOP.Event(_instance.EVENT_AFTER_HIDE));
-			var hideCallback = _vars._hideCallback;
-			if (typeof hideCallback !== typeof undefined){
-				hideCallback();
-				_vars._hideCallback = null;
-			}
-		},
-
-		_handler_close_click:function(evt){
-			if (typeof evt.preventDefault !== typeof undefined){
-				evt.preventDefault();
-			} else {
-				evt.returnValue = false;
-			}
-			_instance.hide();
-			return false;
-		},
-
-		_handler_background_click:function(evt){
-			if (typeof evt.preventDefault !== typeof undefined){
-				evt.preventDefault();
-			} else {
-				evt.returnValue = false;
-			}
-			_instance.hide();
-			return false;
-		},
-
-		_handler_document_keyUp:function(evt){
-			if (evt.keyCode == 27){ //Escape
-				_instance.hide();
-			}
-		},
-
-		_handler_document_focusin:function(evt){
-			var target = evt.target || evt.srcElement;
-			var frame = _vars._frame;
-			if (target != frame && !frame.contains(target)){
-				if (typeof evt.stopPropagation !== typeof undefined){
-					evt.stopPropagation();
+				if (typeof options.offsetX !== typeof undefined) {
+					offsetX = options.offsetX;
 				} else {
-					evt.cancelBubble = true;
+					var dataOffsetX = content.getAttribute(_consts.DATA_OFFSET_X);
+					if (dataOffsetX && dataOffsetX.length) {
+						offsetX = dataOffsetX;
+					}
 				}
-				var content = _vars._content;
-				if (content){
-					content.focus();
-				}
-			}
-		}
-	};
-
-	var TransitionHelper = (function(){
-		var transitionEvent = null;
-		var transitionPrefix = null;
-
-		var transitionEvents = [["webkitTransition","webkitTransitionEnd","-webkit-"], ["transition","transitionend",""]];
-		var transitionEventsLen = transitionEvents.length;
-		for (var i = 0; i < transitionEventsLen; i++){
-			if (typeof document.documentElement.style[transitionEvents[i][0]] !== typeof undefined){
-				break;
-			}
-		}
-		if (i != transitionEventsLen){
-			transitionEvent = transitionEvents[i][1];
-			transitionPrefix = transitionEvents[i][2];
-		} //else not supported
-
-		return {
-			hasTransition:function(element){
-				if (typeof document.documentElement.currentStyle !== typeof undefined){ //IE
-					return parseFloat(element.currentStyle[transitionPrefix + "transition-duration"]) > 0;
+				if (typeof options.offsetY !== typeof undefined) {
+					offsetY = options.offsetY;
 				} else {
-					return parseFloat(window.getComputedStyle(element)[transitionPrefix + "transition-duration"]) > 0;
+					var dataOffsetY = content.getAttribute(_consts.DATA_OFFSET_Y);
+					if (dataOffsetY && dataOffsetY.length) {
+						offsetY = dataOffsetY;
+					}
 				}
-			},
-			onTransitionComplete:function(element, callback){
-				if (transitionEvent){
-					OOP.addEventListener(element, transitionEvent, callback);
+				if (typeof options.containerClass !== typeof undefined) {
+					containerClass = options.containerClass;
 				} else {
-					callback();
+					var dataContainerClass = content.getAttribute(_consts.DATA_CONTAINER_CLASS);
+					if (dataContainerClass && dataContainerClass.length) {
+						containerClass = dataContainerClass;
+					}
 				}
-			},
-			offTransitionComplete:function(element, callback){
-				if (transitionEvent){
-					if (typeof callback !== typeof undefined){
-						OOP.removeEventListener(element, transitionEvent, callback);
+				if (typeof options.userClosable !== typeof undefined) {
+					userClosable = options.userClosable === true;
+				} else if (content.hasAttribute(_consts.DATA_USER_CLOSABLE)) {
+					var dataUserClosable = content.getAttribute(_consts.DATA_USER_CLOSABLE) || "true";
+					userClosable = dataUserClosable.toLowerCase() !== "false";
+				}
+				if (typeof options.autoFocus !== typeof undefined) {
+					autoFocus = options.autoFocus === true;
+				} else if (content.hasAttribute(_consts.DATA_AUTO_FOCUS)) {
+					var dataAutoFocus = content.getAttribute(_consts.DATA_AUTO_FOCUS) || "true";
+					autoFocus = dataAutoFocus.toLowerCase() !== "false";
+				}
+				if (typeof options.immediate !== typeof undefined) {
+					immediate = options.immediate === true;
+				} else if (content.hasAttribute(_consts.DATA_IMMEDIATE)) {
+					var dataImmediate = content.getAttribute(_consts.DATA_IMMEDIATE) || "true";
+					immediate = dataImmediate && dataImmediate.toLowerCase() !== "false";
+				}
+
+				//Cache
+				var container = _vars._container;
+				var background = _vars._background;
+				var frame = _vars._frame;
+				var close = _vars._close;
+
+				//Set frame dimensions to content dimensions and apply parameter overrides
+				ClassHelper.addClass(content, _consts.CLASS_CONTENT);
+				content.setAttribute("tabindex", "0");
+				content._overlayData = content._overlayData || {};
+				if (typeof width === typeof undefined) {
+					if (typeof document.documentElement.currentStyle !== typeof undefined) {
+						//IE
+						width = content.currentStyle.width;
 					} else {
-						OOP.removeEventListener(element, transitionEvent);
+						width = window.getComputedStyle(content).width;
 					}
 				}
-			}
-		};
-	})();
-
-	var ClassHelper = (function(){
-		//Trim shim
-		if (typeof String.prototype.trim !== 'function'){
-			String.prototype.trim = function(){
-				return this.replace(/^\s+|\s+$/g, '');
-			}
-		}
-
-		return {
-			addClass:function(element, classes){
-				var elementClasses = (element.getAttribute("class") || "").split(" ");
-				classes = classes.split(" ");
-				for (var className in classes){
-					elementClasses.push(classes[className].trim());
-				}
-				element.setAttribute("class", elementClasses.join(" ").trim());
-			},
-
-			removeClass:function(element, classes){
-				var elementClasses = (element.getAttribute("class") || "").split(" ");
-				classes = classes.split(" ");
-				for (var className in classes){
-					var elementClassesLen = elementClasses.length;
-					for (var i = 0; i < elementClassesLen; i++){
-						if (elementClasses[i] == classes[className].trim()){
-							elementClasses.splice(i, 1);
-							elementClassesLen--;
-							i--;
-						}
-					}
-				}
-				element.setAttribute("class", elementClasses.join(" ").trim());
-			},
-
-			hasClass:function(element, classes){
-				var elementClasses = (element.getAttribute("class") || "").split(" ");
-				classes = classes.split(" ");
-				var hasCount = 0;
-				for (var className in classes){
-					var elementClassesLen = elementClasses.length;
-					for (var i = 0; i < elementClassesLen; i++){
-						if (elementClasses[i] == classes[className].trim()){
-							hasCount++;
-							break;
-						}
-					}
-				}
-				if (hasCount == classes.length){
-					return true;
+				if (parseInt(width)) {
+					frame.style.width = width;
+					content._overlayData.width = width;
+					content.style.width = "100%";
 				} else {
-					return false
+					frame.style.width = "";
+				}
+				if (typeof height === typeof undefined) {
+					if (typeof document.documentElement.currentStyle !== typeof undefined) {
+						//IE
+						height = content.currentStyle.height;
+					} else {
+						height = window.getComputedStyle(content).height;
+					}
+				}
+				if (parseInt(height)) {
+					frame.style.height = height;
+					content._overlayData.height = height;
+					content.style.height = "100%";
+				} else {
+					frame.style.height = "";
+				}
+				if (typeof offsetX !== typeof undefined) {
+					frame.style.left = offsetX;
+				} else {
+					frame.style.left = "";
+				}
+				if (typeof offsetY !== typeof undefined) {
+					frame.style.top = offsetY;
+				} else {
+					frame.style.top = "";
+				}
+				_vars._content = content;
+
+				//Wire events
+				EventHelper.addEventListener(document, "focusin", _methods._handler_document_focusin);
+				if (userClosable) {
+					EventHelper.addEventListener(document, "keyup", _methods._handler_document_keyUp);
+					EventHelper.addEventListener(background, "click", _methods._handler_background_click);
+					EventHelper.addEventListener(close, "click", _methods._handler_close_click);
+				} else {
+					close.setAttribute("disabled", "disabled");
+				}
+
+				//Append content
+				content._overlayData.parent = content.parentNode;
+				if (isStatic) {
+					content.parentNode.removeChild(content);
+				}
+				frame.insertBefore(content, close);
+
+				//Append container
+				if (!_instance.container) {
+					if (document.body) {
+						_instance.container = document.body;
+					} else {
+						throw new Error("Container is undefined");
+					}
+				}
+				var appendContainer = _instance.container;
+				if (_instance.container.length) {
+					appendContainer = _instance.container[0];
+				}
+				appendContainer.appendChild(container);
+
+				//Save focus, accessibility focus trap, set focus to first focusable item
+				_vars._lastFocus = document.activeElement;
+				var pageWrap = _instance.pageWrap;
+				if (pageWrap) {
+					if (pageWrap.contains(appendContainer)) {
+						throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the modal container. They should be siblings instead.";
+					} else {
+						pageWrap.setAttribute("aria-hidden", "true");
+						pageWrap.setAttribute("tabindex", "-1");
+					}
+				}
+				var focusable = autoFocus ? content.querySelector(_consts.FOCUSABLE) : null;
+				if (!focusable) {
+					focusable = content;
+				}
+				focusable.focus();
+
+				//Add containerClass
+				ClassHelper.addClass(container, containerClass);
+				var timeout = setTimeout(function() {
+					//Delay needed for transition to render
+					clearTimeout(timeout);
+					ClassHelper.addClass(container, _consts.CLASS_FRAME_VISIBLE);
+				}, 50);
+
+				//Wait for transition before completing show
+				_vars._immediate = immediate;
+				if (immediate) {
+					_methods._handler_show_complete();
+				} else if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)) {
+					TransitionHelper.offTransitionComplete(container);
+					TransitionHelper.onTransitionComplete(container, _methods._handler_show_complete);
+				} else {
+					_methods._handler_show_complete();
+				}
+			},
+
+			hide: function(callback) {
+				_vars._hideCallback = callback;
+
+				var content = _vars._content;
+				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_BEFORE_HIDE, {content: content.id || content}));
+
+				//Unwire events
+				EventHelper.removeEventListener(document, "focusin", _methods._handler_document_focusin);
+				EventHelper.removeEventListener(document, "keyup", _methods._handler_document_keyUp);
+
+				var close = _vars._close;
+				if (close) {
+					EventHelper.removeEventListener(close, "click", _methods._handler_close_click);
+					close.removeAttribute("disabled");
+				}
+				var background = _vars._background;
+				if (background) {
+					EventHelper.removeEventListener(background, "click", _methods._handler_background_click);
+				}
+
+				//Wait for transition before completing hide
+				var frame = _vars._frame;
+				var container = _vars._container;
+				if (container) {
+					if (_vars._immediate) {
+						_methods._handler_hide_complete();
+					} else if (TransitionHelper.hasTransition(background) || TransitionHelper.hasTransition(frame)) {
+						TransitionHelper.offTransitionComplete(container);
+						TransitionHelper.onTransitionComplete(container, _methods._handler_hide_complete);
+					} else {
+						_methods._handler_hide_complete();
+					}
+					ClassHelper.removeClass(container, _consts.CLASS_FRAME_VISIBLE);
+				}
+			},
+
+			_handler_show_complete: function() {
+				TransitionHelper.offTransitionComplete(_vars._container);
+
+				var content = _vars._content;
+				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_AFTER_SHOW, {content: content.id || content}));
+				var showCallback = _vars._showCallback;
+				if (typeof showCallback !== typeof undefined) {
+					showCallback();
+					_vars._showCallback = null;
+				}
+			},
+
+			_handler_hide_complete: function() {
+				var container = _vars._container;
+				TransitionHelper.offTransitionComplete(container);
+
+				//Reset content
+				var content = _vars._content;
+				if (content) {
+					content.parentNode.removeChild(content);
+					if (typeof content._overlayData.width !== typeof undefined) {
+						content.style.width = ""; //content._overlayData.width;
+					}
+					if (typeof content._overlayData.height !== typeof undefined) {
+						content.style.height = ""; //content._overlayData.height;
+					}
+					if (typeof content._overlayData.parent !== typeof undefined) {
+						if (content._overlayData.parent) {
+							content._overlayData.parent.appendChild(content);
+						}
+					}
+					content._overlayData = null;
+					content.removeAttribute("tabindex");
+					ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
+				}
+				_vars._content = null;
+
+				//Remove container
+				container.setAttribute("class", "");
+				container.parentNode.removeChild(container);
+
+				//Remove accessibility focus trap and restore focus
+				var pageWrap = _instance.pageWrap;
+				if (pageWrap) {
+					pageWrap.removeAttribute("aria-hidden", "true");
+					pageWrap.removeAttribute("tabindex", "-1");
+				}
+				var lastFocus = _vars._lastFocus;
+				if (lastFocus) {
+					lastFocus.focus();
+				}
+				_vars._lastFocus = null;
+
+				ClassHelper.removeClass(document.body, _consts.CLASS_BODY_OVERLAY_VISIBLE);
+				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_AFTER_HIDE, {content: content.id || content}));
+				var hideCallback = _vars._hideCallback;
+				if (typeof hideCallback !== typeof undefined) {
+					hideCallback();
+					_vars._hideCallback = null;
+				}
+			},
+
+			_handler_close_click: function(evt) {
+				if (typeof evt.preventDefault !== typeof undefined) {
+					evt.preventDefault();
+				} else {
+					evt.returnValue = false;
+				}
+				_instance.hide();
+				return false;
+			},
+
+			_handler_background_click: function(evt) {
+				if (typeof evt.preventDefault !== typeof undefined) {
+					evt.preventDefault();
+				} else {
+					evt.returnValue = false;
+				}
+				_instance.hide();
+				return false;
+			},
+
+			_handler_document_keyUp: function(evt) {
+				//Escape
+				if (evt.keyCode == 27) {
+					_instance.hide();
+				}
+			},
+
+			_handler_document_focusin: function(evt) {
+				var target = evt.target || evt.srcElement;
+				var frame = _vars._frame;
+				if (target != frame && !frame.contains(target)) {
+					if (typeof evt.stopPropagation !== typeof undefined) {
+						evt.stopPropagation();
+					} else {
+						evt.cancelBubble = true;
+					}
+					var content = _vars._content;
+					if (content) {
+						content.focus();
+					}
 				}
 			}
 		};
+
+		var TransitionHelper = (function() {
+			var transitionEvent = null;
+			var transitionPrefix = null;
+
+			var transitionEvents = [
+				["webkitTransition", "webkitTransitionEnd", "-webkit-"],
+				["transition", "transitionend", ""]
+			];
+			var transitionEventsLen = transitionEvents.length;
+			for (var i = 0; i < transitionEventsLen; i++) {
+				if (typeof document.documentElement.style[transitionEvents[i][0]] !== typeof undefined) {
+					break;
+				}
+			}
+			if (i != transitionEventsLen) {
+				transitionEvent = transitionEvents[i][1];
+				transitionPrefix = transitionEvents[i][2];
+			} //else not supported
+
+			return {
+				hasTransition: function(element) {
+					if (typeof document.documentElement.currentStyle !== typeof undefined) {
+						//IE
+						return parseFloat(element.currentStyle[transitionPrefix + "transition-duration"]) > 0;
+					} else {
+						return parseFloat(window.getComputedStyle(element)[transitionPrefix + "transition-duration"]) > 0;
+					}
+				},
+				onTransitionComplete: function(element, callback) {
+					if (transitionEvent) {
+						EventHelper.addEventListener(element, transitionEvent, callback);
+					} else {
+						callback();
+					}
+				},
+				offTransitionComplete: function(element, callback) {
+					if (transitionEvent) {
+						if (typeof callback !== typeof undefined) {
+							EventHelper.removeEventListener(element, transitionEvent, callback);
+						} else {
+							EventHelper.removeEventListener(element, transitionEvent);
+						}
+					}
+				}
+			};
+		})();
+
+		var ClassHelper = (function() {
+			//Trim shim
+			if (typeof String.prototype.trim !== "function") {
+				String.prototype.trim = function() {
+					return this.replace(/^\s+|\s+$/g, "");
+				};
+			}
+
+			return {
+				addClass: function(element, classes) {
+					var elementClasses = (element.getAttribute("class") || "").split(" ");
+					classes = classes.split(" ");
+					for (var className in classes) {
+						elementClasses.push(classes[className].trim());
+					}
+					element.setAttribute("class", elementClasses.join(" ").trim());
+				},
+
+				removeClass: function(element, classes) {
+					var elementClasses = (element.getAttribute("class") || "").split(" ");
+					classes = classes.split(" ");
+					for (var className in classes) {
+						var elementClassesLen = elementClasses.length;
+						for (var i = 0; i < elementClassesLen; i++) {
+							if (elementClasses[i] == classes[className].trim()) {
+								elementClasses.splice(i, 1);
+								elementClassesLen--;
+								i--;
+							}
+						}
+					}
+					element.setAttribute("class", elementClasses.join(" ").trim());
+				},
+
+				hasClass: function(element, classes) {
+					var elementClasses = (element.getAttribute("class") || "").split(" ");
+					classes = classes.split(" ");
+					var hasCount = 0;
+					for (var className in classes) {
+						var elementClassesLen = elementClasses.length;
+						for (var i = 0; i < elementClassesLen; i++) {
+							if (elementClasses[i] == classes[className].trim()) {
+								hasCount++;
+								break;
+							}
+						}
+					}
+					if (hasCount == classes.length) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+			};
+		})();
+
+		//Cross-browser custom object events supported down to IE8
+		//From: https://github.com/koga73/oop
+		var EventHelper = (function() {
+			var _methods = {
+				//Safe cross-browser event (use 'new EventHelper.Event()')
+				Event: function(type, detail) {
+					var event = null;
+					try {
+						//IE catch
+						event = new CustomEvent(type, {
+							detail: detail
+						}); //Non-IE
+					} catch (ex) {
+						if (typeof document !== typeof undefined && document.createEventObject) {
+							//IE
+							event = document.createEventObject("Event");
+							if (event.initCustomEvent) {
+								event.initCustomEvent(type, true, true);
+							}
+						} else {
+							//Custom
+							event = {};
+						}
+					}
+					event.type = type;
+					event.detail = detail;
+					return event;
+				},
+
+				//Adds event system to object
+				addEvents: function(obj, noAlias) {
+					noAlias = noAlias === true;
+					if (!obj._eventHandlers) {
+						obj._eventHandlers = {};
+					}
+					if (!obj.addEventListener) {
+						obj.addEventListener = _methods._addEventListener;
+						if (!noAlias) {
+							obj.on = _methods._addEventListener; //Alias
+						}
+					}
+					if (!obj.removeEventListener) {
+						obj.removeEventListener = _methods._removeEventListener;
+						if (!noAlias) {
+							obj.off = _methods._removeEventListener; //Alias
+						}
+					}
+					if (!obj.dispatchEvent) {
+						obj.dispatchEvent = _methods._dispatchEvent;
+						if (!noAlias) {
+							obj.trigger = _methods._dispatchEvent; //Alias
+							obj.emit = _methods._dispatchEvent; //Alias
+						}
+					}
+					return obj;
+				},
+
+				//Removes event system from object
+				removeEvents: function(obj, noAlias) {
+					noAlias = noAlias === true;
+					if (obj._eventHandlers) {
+						delete obj._eventHandlers;
+					}
+					if (obj.addEventListener) {
+						delete obj.addEventListener;
+						if (!noAlias) {
+							delete obj.on; //Alias
+						}
+					}
+					if (obj.removeEventListener) {
+						delete obj.removeEventListener;
+						if (!noAlias) {
+							delete obj.off; //Alias
+						}
+					}
+					if (obj.dispatchEvent) {
+						delete obj.dispatchEvent;
+						if (!noAlias) {
+							delete obj.trigger; //Alias
+							delete obj.emit; //Alias
+						}
+					}
+					return obj;
+				},
+
+				//Safe cross-browser way to listen for one or more events
+				//Pass obj, comma or whitespace delimeted event types, and a handler
+				addEventListener: function(obj, types, handler) {
+					//For some reason IE8 in compatibility mode calls addEventListener
+					if (typeof obj === typeof "") {
+						return;
+					}
+					if (!obj._eventHandlers) {
+						obj._eventHandlers = {};
+					}
+					types = types.split(/,|\s/);
+					var typesLen = types.length;
+					for (var i = 0; i < typesLen; i++) {
+						var type = types[i];
+						if (obj.addEventListener) {
+							//Standard
+							handler = _methods._addEventHandler(obj, type, handler);
+							obj.addEventListener(type, handler);
+						} else if (obj.attachEvent) {
+							//IE
+							var attachHandler = function() {
+								handler(window.event);
+							};
+							attachHandler.handler = handler; //Store reference to original handler
+							attachHandler = _methods._addEventHandler(obj, type, attachHandler);
+							obj.attachEvent("on" + type, attachHandler);
+						} else if (typeof jQuery !== typeof undefined) {
+							//jQuery
+							handler = _methods._addEventHandler(obj, type, handler);
+							jQuery.on(type, handler);
+						} else {
+							//Custom
+							obj.addEventListener = _methods._addEventListener;
+							obj.addEventListener(type, handler);
+						}
+					}
+				},
+
+				//This is the custom method that gets added to objects
+				_addEventListener: function(type, handler) {
+					handler._isCustom = true;
+					_methods._addEventHandler(this, type, handler);
+				},
+
+				//Stores and returns handler reference
+				_addEventHandler: function(obj, type, eventHandler) {
+					if (!obj._eventHandlers[type]) {
+						obj._eventHandlers[type] = [];
+					}
+					var eventHandlers = obj._eventHandlers[type];
+					var eventHandlersLen = eventHandlers.length;
+					for (var i = 0; i < eventHandlersLen; i++) {
+						if (eventHandlers[i] === eventHandler) {
+							return eventHandler;
+						} else if (eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
+							return eventHandlers[i];
+						}
+					}
+					eventHandlers.push(eventHandler);
+					return eventHandler;
+				},
+
+				//Safe cross-browser way to listen for one or more events
+				//Pass obj, comma or whitespace delimeted event types, and optionally handler
+				//If no handler is passed all handlers for each event type will be removed
+				removeEventListener: function(obj, types, handler) {
+					//For some reason IE8 in compatibility mode calls addEventListener
+					if (typeof obj === typeof "") {
+						return;
+					}
+					if (!obj._eventHandlers) {
+						obj._eventHandlers = {};
+					}
+					types = types.split(/,|\s/);
+					var typesLen = types.length;
+					for (var i = 0; i < typesLen; i++) {
+						var type = types[i];
+						var handlers;
+						if (typeof handler === typeof undefined) {
+							handlers = obj._eventHandlers[type] || [];
+						} else {
+							handlers = [handler];
+						}
+						var handlersLen = handlers.length;
+						for (var j = 0; j < handlersLen; j++) {
+							var handler = handlers[j];
+							if (obj.removeEventListener) {
+								//Standard
+								handler = _methods._removeEventHandler(obj, type, handler);
+								obj.removeEventListener(type, handler);
+							} else if (obj.detachEvent) {
+								//IE
+								handler = _methods._removeEventHandler(obj, type, handler);
+								obj.detachEvent("on" + type, handler);
+							} else if (typeof jQuery !== typeof undefined) {
+								//jQuery
+								handler = _methods._removeEventHandler(obj, type, handler);
+								jQuery.off(type, handler);
+							} else {
+								//Custom
+								obj.removeEventListener = _methods._removeEventListener;
+								obj.removeEventListener(type, handler);
+							}
+						}
+					}
+				},
+
+				//This is the custom method that gets added to objects
+				//Pass comma or whitespace delimeted event types, and optionally handler
+				//If no handler is passed all handlers for each event type will be removed
+				_removeEventListener: function(types, handler) {
+					types = types.split(/,|\s/);
+					var typesLen = types.length;
+					for (var i = 0; i < typesLen; i++) {
+						var type = types[i];
+						var handlers;
+						if (typeof handler === typeof undefined) {
+							handlers = this._eventHandlers[type] || [];
+						} else {
+							handlers = [handler];
+						}
+						var handlersLen = handlers.length;
+						for (var j = 0; j < handlersLen; j++) {
+							var handler = handlers[j];
+							handler._isCustom = false;
+							_methods._removeEventHandler(this, type, handler);
+						}
+					}
+				},
+
+				//Removes and returns handler reference
+				_removeEventHandler: function(obj, type, eventHandler) {
+					if (!obj._eventHandlers[type]) {
+						obj._eventHandlers[type] = [];
+					}
+					var eventHandlers = obj._eventHandlers[type];
+					var eventHandlersLen = eventHandlers.length;
+					for (var i = 0; i < eventHandlersLen; i++) {
+						if (eventHandlers[i] === eventHandler) {
+							return eventHandlers.splice(i, 1)[0];
+						} else if (eventHandlers[i].handler && eventHandlers[i].handler === eventHandler) {
+							return eventHandlers.splice(i, 1)[0];
+						}
+					}
+				},
+
+				//Safe cross-browser way to dispatch an event
+				dispatchEvent: function(obj, event) {
+					if (!obj._eventHandlers) {
+						obj._eventHandlers = {};
+					}
+					if (obj.dispatchEvent) {
+						//Standard
+						obj.dispatchEvent(event);
+					} else if (obj.fireEvent) {
+						//IE
+						obj.fireEvent("on" + type, event);
+					} else if (typeof jQuery !== typeof undefined) {
+						jQuery(obj).trigger(
+							jQuery.Event(event.type, {
+								type: event.type,
+								data: event.detail
+							})
+						);
+					} else {
+						//Custom
+						obj.dispatchEvent = _methods._dispatchEvent;
+						obj.dispatchEvent(event);
+					}
+				},
+
+				//This is the custom method that gets added to objects
+				_dispatchEvent: function(event) {
+					_methods._dispatchEventHandlers(this, event);
+				},
+
+				//Dispatches an event to handler references
+				_dispatchEventHandlers: function(obj, event) {
+					var eventHandlers = obj._eventHandlers[event.type];
+					if (!eventHandlers) {
+						return;
+					}
+					var eventHandlersLen = eventHandlers.length;
+					for (var i = 0; i < eventHandlersLen; i++) {
+						eventHandlers[i](event, event.detail);
+					}
+				}
+			};
+
+			return {
+				Event: _methods.Event,
+
+				addEvents: _methods.addEvents,
+				removeEvents: _methods.removeEvents,
+
+				addEventListener: _methods.addEventListener,
+				removeEventListener: _methods.removeEventListener,
+				dispatchEvent: _methods.dispatchEvent
+			};
+		})();
+
+		_instance = {
+			EVENT_BEFORE_SHOW: _events.EVENT_BEFORE_SHOW,
+			EVENT_AFTER_SHOW: _events.EVENT_AFTER_SHOW,
+			EVENT_BEFORE_HIDE: _events.EVENT_BEFORE_HIDE,
+			EVENT_AFTER_HIDE: _events.EVENT_AFTER_HIDE,
+
+			container: _vars.container,
+			pageWrap: _vars.pageWrap,
+
+			init: _methods.init,
+			destroy: _methods.destroy,
+			hide: _methods.hide,
+			show: _methods.show
+		};
+		if (document.body) {
+			_instance.init();
+		}
+		return _instance;
 	})();
-
-	_instance = {
-		EVENT_BEFORE_SHOW:_events.EVENT_BEFORE_SHOW,
-		EVENT_AFTER_SHOW:_events.EVENT_AFTER_SHOW,
-		EVENT_BEFORE_HIDE:_events.EVENT_BEFORE_HIDE,
-		EVENT_AFTER_HIDE:_events.EVENT_AFTER_HIDE,
-
-		container:_vars.container,
-		pageWrap:_vars.pageWrap,
-
-		init:_methods.init,
-		destroy:_methods.destroy,
-		hide:_methods.hide,
-		show:_methods.show
-	};
-	if (document.body){
-		_instance.init();
-	}
-	return _instance;
-})();

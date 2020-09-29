@@ -63,7 +63,6 @@
 
 		<!-- Include overlay.js -->
 		<script src="js/overlay.js"></script>
-		<!-- Trigger overlay programmatically on load -->
 		<script>
 			var div = document.createElement("div");
 			div.innerHTML = "Triggered programmatically";
@@ -75,19 +74,21 @@
 			});
 		</script>
 
-		<!-- Listen for events -->
+		<!-- Listen for events with jQuery -->
+		<!-- Include jQuery -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
 		<script>
 			//Optional: Events fired
-			Overlay.addEventListener(Overlay.EVENT_BEFORE_SHOW, function(evt, detail) {
+			$(Overlay).on(Overlay.EVENT_BEFORE_SHOW, function(evt, detail) {
 				console.log("BEFORE SHOW", detail);
 			});
-			Overlay.addEventListener(Overlay.EVENT_AFTER_SHOW, function(evt, detail) {
+			$(Overlay).on(Overlay.EVENT_AFTER_SHOW, function(evt, detail) {
 				console.log("AFTER SHOW", detail);
 			});
-			Overlay.addEventListener(Overlay.EVENT_BEFORE_HIDE, function(evt, detail) {
+			$(Overlay).on(Overlay.EVENT_BEFORE_HIDE, function(evt, detail) {
 				console.log("BEFORE HIDE", detail);
 			});
-			Overlay.addEventListener(Overlay.EVENT_AFTER_HIDE, function(evt, detail) {
+			$(Overlay).on(Overlay.EVENT_AFTER_HIDE, function(evt, detail) {
 				console.log("AFTER HIDE", detail);
 			});
 		</script>
