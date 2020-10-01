@@ -61,9 +61,9 @@
 			</div>
 		</div>
 
+		<!-- Trigger overlay programmatically on load -->
 		<!-- Include overlay.js -->
 		<script src="../js/overlay.js"></script>
-		<!-- Trigger overlay programmatically on load -->
 		<script>
 			var div = document.createElement("div");
 			div.innerHTML = "Triggered programmatically";
@@ -72,6 +72,14 @@
 				//width:"50%",
 				//height:"50%",
 				//userClosable:false
+			});
+
+			var test2 = document.createElement("div");
+			test2.innerHTML = "testing";
+			var overlay2 = new Overlay();
+			overlay2.init(null);
+			overlay2.show(test2, {
+				containerClass: "slide-up"
 			});
 		</script>
 
