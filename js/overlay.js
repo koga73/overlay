@@ -443,24 +443,23 @@
 				window[_class][prop] = singleton[prop];
 			}
 			_static._singleton = singleton;
-
-			//Document events
-			EventHelper.addEventListener(document, "focusin", _static._handler_document_focusin);
-			EventHelper.addEventListener(document, "keyup", _static._handler_document_keyup);
 		},
 		_destory: function() {
 			if (_static._singleton) {
 				_static._singleton.destroy();
 			}
 			_static._singleton = null;
-
-			//Document events
-			EventHelper.removeEventListener(document, "focusin", _static._handler_document_focusin);
-			EventHelper.removeEventListener(document, "keyup", _static._handler_document_keyup);
 		},
 
 		_addFocusin: function(method) {
-			_static._focusin_handlerStack.push(method);
+			var focusinStack = _static._focusin_handlerStack;
+			var previousStackLen = focusinStack.length;
+			focusinStack.push(method);
+
+			//Add listener first time we get a method in the stack
+			if (!previousStackLen) {
+				EventHelper.addEventListener(document, "focusin", _static._handler_document_focusin);
+			}
 		},
 		_removeFocusin: function(method) {
 			var focusinStack = _static._focusin_handlerStack;
@@ -469,6 +468,11 @@
 				if (focusinStack[i] === method) {
 					focusinStack.splice(i, 1);
 				}
+			}
+
+			//Remove listener if stack is empty
+			if (!focusinStack.length) {
+				EventHelper.removeEventListener(document, "focusin", _static._handler_document_focusin);
 			}
 		},
 		_handler_document_focusin: function(evt) {
@@ -480,7 +484,14 @@
 		},
 
 		_addKeyup: function(method) {
-			_static._keyup_handlerStack.push(method);
+			var keyupStack = _static._keyup_handlerStack;
+			var previousStackLen = keyupStack.length;
+			keyupStack.push(method);
+
+			//Add listener first time we get a method in the stack
+			if (!previousStackLen) {
+				EventHelper.addEventListener(document, "keyup", _static._handler_document_keyup);
+			}
 		},
 		_removeKeyup: function(method) {
 			var keyupStack = _static._keyup_handlerStack;
@@ -489,6 +500,11 @@
 				if (keyupStack[i] === method) {
 					keyupStack.splice(i, 1);
 				}
+			}
+
+			//Remove listener if stack is empty
+			if (!keyupStack.length) {
+				EventHelper.removeEventListener(document, "keyup", _static._handler_document_keyup);
 			}
 		},
 		_handler_document_keyup: function(evt) {
