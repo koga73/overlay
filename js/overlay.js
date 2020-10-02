@@ -670,10 +670,6 @@
 						throw new Error("Trigger must have " + _consts.DATA_TRIGGER + " or href");
 					}
 				}
-				//Remove # if present
-				if (targetId.substr(0, 1) == "#") {
-					targetId = targetId.substr(1, targetId.length - 1);
-				}
 				//Add event listener
 				EventHelper.addEventListener(element, "click", function(evt) {
 					if (typeof evt.preventDefault !== typeof undefined) {
@@ -697,6 +693,10 @@
 
 				//If string then grab from DOM otherwise it is a dynamic element passed in
 				var isStatic = typeof content === typeof "";
+				//Remove # if present
+				if (isStatic && content.indexOf("#") != -1) {
+					content = content.replace(/.*#/, "");
+				}
 				if (typeof options == typeof undefined) {
 					options = {};
 				}
