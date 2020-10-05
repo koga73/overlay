@@ -81,6 +81,12 @@
 			overlay2.show(test2, {
 				containerClass: "slide-up"
 			});
+
+			Overlay.requestCloseCallback = function(content) {
+				console.log("requestCloseCallback", content);
+
+				return false;
+			};
 		</script>
 
 		<!-- Listen for events -->

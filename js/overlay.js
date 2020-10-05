@@ -451,6 +451,13 @@
 			_static._singleton = null;
 		},
 
+		//Map back options set on static class to singleton
+		_update: function() {
+			_static._singleton.container = window[_class].container;
+			_static._singleton.pageWrap = window[_class].pageWrap;
+			_static._singleton.requestCloseCallback = window[_class].requestCloseCallback;
+		},
+
 		_addFocusin: function(method) {
 			var focusinStack = _static._focusin_handlerStack;
 			var previousStackLen = focusinStack.length;
@@ -467,6 +474,7 @@
 			for (var i = 0; i < focusinStackLen; i++) {
 				if (focusinStack[i] === method) {
 					focusinStack.splice(i, 1);
+					break;
 				}
 			}
 
@@ -499,6 +507,7 @@
 			for (var i = 0; i < keyupStackLen; i++) {
 				if (keyupStack[i] === method) {
 					keyupStack.splice(i, 1);
+					break;
 				}
 			}
 
@@ -522,6 +531,7 @@
 		var _vars = {
 			container: null,
 			pageWrap: null,
+			requestCloseCallback: null,
 
 			_initialized: false,
 
@@ -690,6 +700,7 @@
 				if (!_vars._initialized) {
 					throw new Error(_class + " is not initialized. To fix call init()");
 				}
+				_static._update();
 
 				//If string then grab from DOM otherwise it is a dynamic element passed in
 				var isStatic = typeof content === typeof "";
@@ -1048,7 +1059,7 @@
 				} else {
 					evt.returnValue = false;
 				}
-				_instance.hide();
+				_methods._requestClose();
 				return false;
 			},
 
@@ -1058,13 +1069,25 @@
 				} else {
 					evt.returnValue = false;
 				}
-				_instance.hide();
+				_methods._requestClose();
 				return false;
 			},
 
 			_handler_document_keyup: function(evt) {
 				//Escape
 				if (evt.keyCode == 27) {
+					_methods._requestClose();
+				}
+			},
+
+			_requestClose: function() {
+				if (_instance.requestCloseCallback) {
+					var content = _vars._content;
+					var result = _instance.requestCloseCallback(content.id || content);
+					if (result !== false && result !== 0) {
+						_instance.hide();
+					}
+				} else {
 					_instance.hide();
 				}
 			},
@@ -1094,6 +1117,7 @@
 
 			container: _vars.container,
 			pageWrap: _vars.pageWrap,
+			requestCloseCallback: _vars.requestCloseCallback,
 
 			init: _methods.init,
 			destroy: _methods.destroy,
