@@ -5,7 +5,7 @@
  */
 (function() {
 	var _class = "Overlay";
-	var _classLower = _class.toLowerCase();
+	var _classPrefix = _class.toLowerCase() + "-";
 
 	var _events = {
 		EVENT_BEFORE_SHOW: "beforeshow",
@@ -15,25 +15,25 @@
 	};
 
 	var _consts = {
-		CLASS_CONTAINER: _classLower + "-container",
-		CLASS_BACKGROUND: _classLower + "-background",
-		CLASS_FRAME: _classLower + "-frame",
-		CLASS_CLOSE: _classLower + "-close",
-		CLASS_FRAME_VISIBLE: _classLower + "-visible",
-		CLASS_BODY_VISIBLE: _classLower + "-visible",
-		CLASS_CONTENT: _classLower + "-content",
+		CLASS_CONTAINER: _classPrefix + "container",
+		CLASS_BACKGROUND: _classPrefix + "background",
+		CLASS_FRAME: _classPrefix + "frame",
+		CLASS_CLOSE: _classPrefix + "close",
+		CLASS_FRAME_VISIBLE: _classPrefix + "visible",
+		CLASS_BODY_VISIBLE: _classPrefix + "visible",
+		CLASS_CONTENT: _classPrefix + "content",
 
-		DATA_CONTAINER: "data-" + _classLower + "-container",
-		DATA_PAGE_WRAP: "data-" + _classLower + "-page-wrap",
-		DATA_TRIGGER: "data-" + _classLower + "-trigger",
-		DATA_WIDTH: "data-" + _classLower + "-width",
-		DATA_HEIGHT: "data-" + _classLower + "-height",
-		DATA_OFFSET_X: "data-" + _classLower + "-offset-x",
-		DATA_OFFSET_Y: "data-" + _classLower + "-offset-y",
-		DATA_CONTAINER_CLASS: "data-" + _classLower + "-container-class",
-		DATA_USER_CLOSABLE: "data-" + _classLower + "-user-closable",
-		DATA_AUTO_FOCUS: "data-" + _classLower + "-auto-focus",
-		DATA_IMMEDIATE: "data-" + _classLower + "-immediate",
+		DATA_CONTAINER: "data-" + _classPrefix + "container",
+		DATA_PAGE_WRAP: "data-" + _classPrefix + "page-wrap",
+		DATA_TRIGGER: "data-" + _classPrefix + "trigger",
+		DATA_WIDTH: "data-" + _classPrefix + "width",
+		DATA_HEIGHT: "data-" + _classPrefix + "height",
+		DATA_OFFSET_X: "data-" + _classPrefix + "offset-x",
+		DATA_OFFSET_Y: "data-" + _classPrefix + "offset-y",
+		DATA_CONTAINER_CLASS: "data-" + _classPrefix + "container-class",
+		DATA_USER_CLOSABLE: "data-" + _classPrefix + "user-closable",
+		DATA_AUTO_FOCUS: "data-" + _classPrefix + "auto-focus",
+		DATA_IMMEDIATE: "data-" + _classPrefix + "immediate",
 
 		FOCUSABLE: "a[href],input,select,textarea,button,[tabindex]",
 		DEFAULT_ARIA_LABEL: _class
@@ -454,9 +454,12 @@
 
 		//Map back options set on static class to singleton
 		_update: function() {
-			_static._singleton.container = window[_class].container;
-			_static._singleton.pageWrap = window[_class].pageWrap;
-			_static._singleton.requestCloseCallback = window[_class].requestCloseCallback;
+			if (_static._singleton){
+				_static._singleton.classPrefix = window[_class].classPrefix;
+				_static._singleton.container = window[_class].container;
+				_static._singleton.pageWrap = window[_class].pageWrap;
+				_static._singleton.requestCloseCallback = window[_class].requestCloseCallback;
+			}
 		},
 
 		_addFocusin: function(method) {
@@ -531,6 +534,7 @@
 		var _instance;
 
 		var _vars = {
+			classPrefix:null,
 			container: null,
 			pageWrap: null,
 			requestCloseCallback: null,
@@ -557,25 +561,30 @@
 				if (typeof scopeElement === typeof undefined) {
 					scopeElement = document.body || null;
 				}
+				_static._update();
 
 				//Container
 				var container = document.createElement("div");
-				container.setAttribute("class", _consts.CLASS_CONTAINER);
+				var classContainer = _instance.classPrefix ? _consts.CLASS_CONTAINER.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_CONTAINER;
+				container.setAttribute("class", classContainer);
 				_vars._container = container;
 
 				//Background
 				var background = document.createElement("div");
-				background.setAttribute("class", _consts.CLASS_BACKGROUND);
+				var classBackground = _instance.classPrefix ? _consts.CLASS_BACKGROUND.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BACKGROUND;
+				background.setAttribute("class", classBackground);
 				_vars._background = background;
 
 				//Frame
 				var frame = document.createElement("div");
-				frame.setAttribute("class", _consts.CLASS_FRAME);
+				var classFrame = _instance.classPrefix ? _consts.CLASS_FRAME.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_FRAME;
+				frame.setAttribute("class", classFrame);
 				_vars._frame = frame;
 
 				//Close
 				var close = document.createElement("button");
-				close.setAttribute("class", _consts.CLASS_CLOSE);
+				var classClose = _instance.classPrefix ? _consts.CLASS_CLOSE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_CLOSE;
+				close.setAttribute("class", classClose);
 				close.setAttribute("type", "button");
 				close.innerHTML = "Close";
 				_vars._close = close;
@@ -631,7 +640,8 @@
 				_vars._scopeElement = null;
 
 				//Restore state
-				ClassHelper.removeClass(document.body, _consts.CLASS_BODY_VISIBLE);
+				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
+				ClassHelper.removeClass(document.body, classBodyVisible);
 				_methods._focusRestore();
 				_methods._resetContent();
 				_vars._showCallback = null;
@@ -719,7 +729,8 @@
 					options = {};
 				}
 				_vars._showCallback = callback;
-				ClassHelper.addClass(document.body, _consts.CLASS_BODY_VISIBLE);
+				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
+				ClassHelper.addClass(document.body, classBodyVisible);
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_BEFORE_SHOW, {content: content.id || content}));
 
 				//Hide current
@@ -739,7 +750,7 @@
 				var width, height, offsetX, offsetY;
 				var containerClass = "";
 				var userClosable = true;
-				var autoFocus = true;
+				var autoFocus = false;
 				var immediate = false;
 				if (typeof options.width !== typeof undefined) {
 					width = options.width;
@@ -807,7 +818,8 @@
 				var close = _vars._close;
 
 				//Set content attributes
-				ClassHelper.addClass(content, _consts.CLASS_CONTENT);
+				var classContent = _instance.classPrefix ? _consts.CLASS_CONTENT.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_CONTENT;
+				ClassHelper.addClass(content, classContent);
 				content.setAttribute("tabindex", "0");
 				//Add aria-label if missing
 				if (!content.hasAttribute("aria-label") && !content.hasAttribute("aria-labelled-by")) {
@@ -815,7 +827,7 @@
 				}
 
 				//Set frame dimensions to content dimensions and apply parameter overrides
-				content["_" + _classLower + "Data"] = content["_" + _classLower + "Data"] || {};
+				content["_" + _classPrefix + "data"] = content["_" + _classPrefix + "data"] || {};
 				if (typeof width === typeof undefined) {
 					if (typeof document.documentElement.currentStyle !== typeof undefined) {
 						//IE
@@ -826,7 +838,7 @@
 				}
 				if (parseInt(width)) {
 					frame.style.width = width;
-					content["_" + _classLower + "Data"].width = width;
+					content["_" + _classPrefix + "data"].width = width;
 					content.style.width = "100%";
 				} else {
 					frame.style.width = "";
@@ -841,7 +853,7 @@
 				}
 				if (parseInt(height)) {
 					frame.style.height = height;
-					content["_" + _classLower + "Data"].height = height;
+					content["_" + _classPrefix + "data"].height = height;
 					content.style.height = "100%";
 				} else {
 					frame.style.height = "";
@@ -868,7 +880,7 @@
 				}
 
 				//Append content
-				content["_" + _classLower + "Data"].parent = content.parentNode;
+				content["_" + _classPrefix + "data"].parent = content.parentNode;
 				if (isStatic) {
 					content.parentNode.removeChild(content);
 				}
@@ -896,7 +908,8 @@
 				var timeout = setTimeout(function() {
 					//Delay needed for transition to render
 					clearTimeout(timeout);
-					ClassHelper.addClass(container, _consts.CLASS_FRAME_VISIBLE);
+					var classFrameVisible = _instance.classPrefix ? _consts.CLASS_FRAME_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_FRAME_VISIBLE;
+					ClassHelper.addClass(container, classFrameVisible);
 				}, 50);
 
 				//Wait for transition before completing show
@@ -947,7 +960,8 @@
 					} else {
 						_methods._handler_hide_complete();
 					}
-					ClassHelper.removeClass(container, _consts.CLASS_FRAME_VISIBLE);
+					var classFrameVisible = _instance.classPrefix ? _consts.CLASS_FRAME_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_FRAME_VISIBLE;
+					ClassHelper.removeClass(container, classFrameVisible);
 				}
 			},
 
@@ -1006,7 +1020,7 @@
 				if (content) {
 					content.parentNode.removeChild(content);
 
-					var data = content["_" + _classLower + "Data"];
+					var data = content["_" + _classPrefix + "data"];
 					if (typeof data.width !== typeof undefined) {
 						content.style.width = ""; //data.width;
 					}
@@ -1021,7 +1035,8 @@
 					data = null;
 
 					content.removeAttribute("tabindex");
-					ClassHelper.removeClass(content, _consts.CLASS_CONTENT);
+					var classContent = _instance.classPrefix ? _consts.CLASS_CONTENT.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_CONTENT;
+					ClassHelper.removeClass(content, classContent);
 				}
 				_vars._content = null;
 			},
@@ -1049,13 +1064,15 @@
 				_methods._resetContent();
 
 				//Remove container
-				container.setAttribute("class", _consts.CLASS_CONTAINER);
+				var classContainer = _instance.classPrefix ? _consts.CLASS_CONTAINER.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_CONTAINER;
+				container.setAttribute("class", classContainer);
 				container.parentNode.removeChild(container);
 
 				//Restore focus
 				_methods._focusRestore();
 
-				ClassHelper.removeClass(document.body, _consts.CLASS_BODY_VISIBLE);
+				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
+				ClassHelper.removeClass(document.body, classBodyVisible);
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_AFTER_HIDE, {content: content.id || content}));
 				var hideCallback = _vars._hideCallback;
 				if (typeof hideCallback !== typeof undefined) {
