@@ -15,12 +15,11 @@
 	};
 
 	var _consts = {
-		ID_CONTAINER: _classLower + "Container",
-		ID_BACKGROUND: _classLower + "Background",
-		ID_FRAME: _classLower + "Frame",
-		ID_CLOSE: _classLower + "Close",
-
-		CLASS_FRAME_VISIBLE: "visible",
+		CLASS_CONTAINER: _classLower + "-container",
+		CLASS_BACKGROUND: _classLower + "-background",
+		CLASS_FRAME: _classLower + "-frame",
+		CLASS_CLOSE: _classLower + "-close",
+		CLASS_FRAME_VISIBLE: _classLower + "-visible",
 		CLASS_BODY_VISIBLE: _classLower + "-visible",
 		CLASS_CONTENT: _classLower + "-content",
 
@@ -40,6 +39,7 @@
 		DEFAULT_ARIA_LABEL: _class
 	};
 
+	//Methods for listening when transition is complete
 	var TransitionHelper = (function() {
 		var transitionEvent = null;
 		var transitionPrefix = null;
@@ -87,6 +87,7 @@
 		};
 	})();
 
+	//Methods for add/remove/has class for IE8
 	var ClassHelper = (function() {
 		//Trim shim
 		if (typeof String.prototype.trim !== "function") {
@@ -429,7 +430,7 @@
 		};
 	})();
 
-	//With multiple modals only the top-most gets focus/key events!
+	//With multiple instances only the top-most gets focus/key events!
 	var _static = {
 		_singleton: null,
 		_focusin_handlerStack: [],
@@ -525,6 +526,7 @@
 		}
 	};
 
+	//Instance!
 	window[_class] = function() {
 		var _instance;
 
@@ -550,6 +552,7 @@
 		};
 
 		var _methods = {
+			//Create our DOM elements
 			init: function(scopeElement) {
 				if (typeof scopeElement === typeof undefined) {
 					scopeElement = document.body || null;
@@ -557,22 +560,22 @@
 
 				//Container
 				var container = document.createElement("div");
-				container.setAttribute("id", _consts.ID_CONTAINER);
+				container.setAttribute("class", _consts.CLASS_CONTAINER);
 				_vars._container = container;
 
 				//Background
 				var background = document.createElement("div");
-				background.setAttribute("id", _consts.ID_BACKGROUND);
+				background.setAttribute("class", _consts.CLASS_BACKGROUND);
 				_vars._background = background;
 
 				//Frame
 				var frame = document.createElement("div");
-				frame.setAttribute("id", _consts.ID_FRAME);
+				frame.setAttribute("class", _consts.CLASS_FRAME);
 				_vars._frame = frame;
 
 				//Close
 				var close = document.createElement("button");
-				close.setAttribute("id", _consts.ID_CLOSE);
+				close.setAttribute("class", _consts.CLASS_CLOSE);
 				close.setAttribute("type", "button");
 				close.innerHTML = "Close";
 				_vars._close = close;
@@ -608,6 +611,7 @@
 				_vars._initialized = true;
 			},
 
+			//Remove our DOM elements
 			destroy: function() {
 				_vars._initialized = false;
 
@@ -667,6 +671,7 @@
 				_vars._container = null;
 			},
 
+			//Make element trigger show
 			addTrigger: function(element, targetId) {
 				targetId = targetId || null;
 				if (!targetId) {
@@ -692,10 +697,12 @@
 				});
 			},
 
+			//Remove element triggering show
 			removeTrigger: function(element) {
 				EventHelper.removeEventListener(element, "click");
 			},
 
+			//Show an id or DOM element
 			show: function(content, options, callback) {
 				if (!_vars._initialized) {
 					throw new Error(_class + " is not initialized. To fix call init()");
@@ -904,6 +911,7 @@
 				}
 			},
 
+			//Hide what is currently shown
 			hide: function(callback) {
 				if (!_vars._initialized) {
 					throw new Error(_class + " is not initialized. To fix call init()");
@@ -957,7 +965,7 @@
 				var pageWrap = _instance.pageWrap;
 				if (pageWrap) {
 					if (pageWrap.contains(appendContainer)) {
-						throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the modal container. They should be siblings instead.";
+						throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the container. They should be siblings instead.";
 					} else {
 						pageWrap.setAttribute("aria-hidden", "true");
 						pageWrap.setAttribute("tabindex", "-1");
@@ -992,6 +1000,7 @@
 				_vars._lastFocus = null;
 			},
 
+			//Put the content back where it used to be after hiding
 			_resetContent: function() {
 				var content = _vars._content;
 				if (content) {
@@ -1017,6 +1026,7 @@
 				_vars._content = null;
 			},
 
+			//Called when show transition is complete
 			_handler_show_complete: function() {
 				TransitionHelper.offTransitionComplete(_vars._container);
 
@@ -1029,6 +1039,7 @@
 				}
 			},
 
+			//Called when hide transition is complete
 			_handler_hide_complete: function() {
 				var container = _vars._container;
 				TransitionHelper.offTransitionComplete(container);
@@ -1038,7 +1049,7 @@
 				_methods._resetContent();
 
 				//Remove container
-				container.setAttribute("class", "");
+				container.setAttribute("class", _consts.CLASS_CONTAINER);
 				container.parentNode.removeChild(container);
 
 				//Restore focus
@@ -1053,6 +1064,7 @@
 				}
 			},
 
+			//On click close button
 			_handler_close_click: function(evt) {
 				if (typeof evt.preventDefault !== typeof undefined) {
 					evt.preventDefault();
@@ -1063,6 +1075,7 @@
 				return false;
 			},
 
+			//On click background
 			_handler_background_click: function(evt) {
 				if (typeof evt.preventDefault !== typeof undefined) {
 					evt.preventDefault();
@@ -1073,6 +1086,7 @@
 				return false;
 			},
 
+			//On escape key
 			_handler_document_keyup: function(evt) {
 				//Escape
 				if (evt.keyCode == 27) {
@@ -1080,6 +1094,7 @@
 				}
 			},
 
+			//The user has requested closing, notify our callback if present
 			_requestClose: function() {
 				if (_instance.requestCloseCallback) {
 					var content = _vars._content;
@@ -1092,6 +1107,7 @@
 				}
 			},
 
+			//When an element gets focus, make sure we trap to currently shown
 			_handler_document_focusin: function(evt) {
 				var target = evt.target || evt.srcElement;
 				var frame = _vars._frame;
