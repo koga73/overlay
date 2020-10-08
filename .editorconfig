@@ -1,6 +1,6 @@
 root = true
 
-[*.{js,jsx,vue,html,scss}]
+[*.{html,css,scss,js,jsx,vue,ts,md}]
 charset = utf-8
 indent_style = tab
 indent_size = 4
