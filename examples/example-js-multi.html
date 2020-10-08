@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Overlay</title>
+
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+		<!-- Include overlay.css -->
+		<link href="../css/overlay.css" type="text/css" rel="stylesheet" />
+
+		<!-- Page styles -->
+		<style type="text/css">
+			/* Simple reset */
+			* {
+				margin: 0;
+				border: 0;
+				padding: 0;
+			}
+
+			a {
+				display: block;
+				margin: 16px;
+			}
+			#myOverlay1 {
+				width: 600px;
+				height: 400px;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Page content container should have "data-overlay-page-wrap" -->
+		<!-- "data-overlay-page-wrap" attribute allows Overlay to trap focus when Overlay is open for accessibility -->
+		<div data-overlay-page-wrap>
+			<h1>Some Page Content</h1>
+		</div>
+
+		<!-- Include overlay.js -->
+		<script src="../js/overlay.js"></script>
+		<script>
+			var div = document.createElement("div");
+			div.innerHTML = "Dynamic content - Lorem Ipsum Dolar";
+			//Show single
+			Overlay.show(div, {
+				containerClass: "slide-down"
+				//width:"50%",
+				//height:"50%",
+				//userClosable:false
+			});
+
+			//Multi-modal!
+			var div2 = document.createElement("div");
+			div2.innerHTML = "Some other content";
+			//Show multiple
+			var Overlay2 = new Overlay();
+			Overlay2.init();
+			Overlay2.show(div2);
+		</script>
+	</body>
+</html>

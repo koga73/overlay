@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Overlay</title>
+
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+		<!-- Include overlay.css -->
+		<link href="../css/overlay.css" type="text/css" rel="stylesheet" />
+
+		<!-- Page styles -->
+		<style type="text/css">
+			/* Simple reset */
+			* {
+				margin: 0;
+				border: 0;
+				padding: 0;
+			}
+
+			a {
+				display: block;
+				margin: 16px;
+			}
+			#myOverlay1 {
+				width: 600px;
+				height: 400px;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Page content container should have "data-overlay-page-wrap" -->
+		<!-- "data-overlay-page-wrap" attribute allows Overlay to trap focus when Overlay is open for accessibility -->
+		<div data-overlay-page-wrap>
+			<h1>Some Page Content</h1>
+			<a href="#myOverlay1" data-overlay-trigger>Open Overlay</a>
+		</div>
+
+		<!-- This container serves as a place for your overlays to live when they are not open -->
+		<div style="display:none;">
+			<!-- Each overlay needs an id -->
+			<div id="myOverlay1" data-overlay-container-class="slide-down">
+				<h1>This Overlay has a transition, slide-down</h1>
+			</div>
+		</div>
+
+		<!-- Include overlay.js -->
+		<script src="../js/overlay.js"></script>
+	</body>
+</html>

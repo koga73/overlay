@@ -1,44 +1,78 @@
 # Overlay
 
 -   A simple responsive modal system for the web
--   Works down to IE8
--   Accessible by screen readers
--   Easy to customize
+-   Fully accessible
+-   Easy to style
 -   No dependencies
--   Vanilla JS
+-   Works down to IE8
 
-## Install:
+---
 
-```
-npm i @koga73/overlay
-```
+## Accessibility
 
-## Implementation
+Overlay has been designed to be completely accessible. Features are as follows:
 
-Include JS and CSS files on your page
+-   Fallback text for "X" icon reads "Close"
+-   Escape key closes the Overlay
+-   Focus is given to top-most Overlay shown if there are multiple
+-   Traps keyboard focus so the user can't tab to the page behind the Overlay
+-   Focus is restored to original element after Overlay is closed
+-   Traps screen-reader in Overlay by giving page content z-index="-1" and aria-hidden="true"
+-   Overlay is announced via "Dialog Start" when shown
+-   Default aria-label "Overlay" is added unless element has aria-label or aria-labelledby
 
-#### HTML
+---
 
-```html
-<!-- This container serves as a place for your overlays to live when they are not open -->
-<div style="display:none;">
-	<!-- Each overlay needs an id -->
-	<div id="myOverlay1" data-overlay-container-class="slide-down">
-		<h1>Slide Down</h1>
-	</div>
-	<div id="myOverlay2" data-overlay-user-closable="false">
-		<h1>User cannot close this, most be closed programmatically</h1>
-	</div>
-</div>
-```
+## Basic Implementation
+
+Include JS and CSS files on your page. Then create a trigger and your Overlay content
+
+### HTML
 
 ```html
-<!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
-<div id="container" data-overlay-page-wrap>
-	<a href="#myOverlay1" data-overlay-trigger>Slide Down</a>
-	<a href="#myOverlay2" data-overlay-trigger>User can't close</a>
-</div>
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Overlay</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+
+		<!-- Include overlay.css -->
+		<link href="../css/overlay.css" type="text/css" rel="stylesheet" />
+
+		<!-- Page styles -->
+		<style type="text/css">
+			#myOverlay1 {
+				width: 600px;
+				height: 400px;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Page content container should have "data-overlay-page-wrap" -->
+		<!-- "data-overlay-page-wrap" attribute allows Overlay to trap focus when Overlay is open for accessibility -->
+		<div data-overlay-page-wrap>
+			<h1>Some Page Content</h1>
+			<a href="#myOverlay1" data-overlay-trigger>Open Overlay</a>
+		</div>
+
+		<!-- This container serves as a place for your overlays to live when they are not open -->
+		<div style="display:none;">
+			<!-- Each overlay needs an id -->
+			<div id="myOverlay1">
+				<h1>Overlay Content</h1>
+			</div>
+		</div>
+
+		<!-- Include overlay.js -->
+		<script src="js/overlay.js"></script>
+	</body>
+</html>
 ```
+
+###### Optional data attributes
+
+The following data attributes can be specified on any Overlay element
 
 ```html
 <!-- Optional data attributes for each overlay -->
@@ -57,7 +91,7 @@ Include JS and CSS files on your page
 </div>
 ```
 
-#### CSS
+### CSS
 
 ```css
 /* By default an overlay will size to the content */
@@ -73,78 +107,109 @@ Include JS and CSS files on your page
 
 ## JS API
 
-JS
+The JS API can be used to show/hide an Overlay, listen for events, and create new Overlay instances (multi-modal)
+
+### Full API
+
+Events
+
+-   **EVENT_BEFORE_SHOW** | String | Value: _"beforeshow"_ | Fires when Overlay begins to show but before transitions are complete
+-   **EVENT_AFTER_SHOW** | String | Value: _"aftershow"_ | Fires when Overlay is fully shown after transitions are complete
+-   **EVENT_BEFORE_HIDE** | String | Value: _"beforehide"_ | Fires when Overlay begins to hide but before transitions are complete
+-   **EVENT_AFTER_HIDE** | String | Value: _"afterhide"_ | Fires when Overlay is fully hidden after transitions are complete
+
+Properties
+
+-   **classPrefix** | String | Default: _"overlay-"_ | Appended to all generated classes. For example: "overlay-container"
+-   **container** | Element | Default: _undefined_ | Container to put Overlays in when not shown
+-   **pageWrap** | Element | Default: _undefined_ | Container of main page content to disallow focus when Overlay is shown
+-   **requestCloseCallback** | Function | Default: _undefined_ | Called when a user attempts to close an Overlay. Return false to cancel
+
+Methods
+
+-   **init** | Function | Initializes the Overlay system
+-   **destroy** | Function | Destroys the Overlay system
+-   **show** | Function | Show an Overlay
+-   **hide** | Function | Hide the currently shown Overlay
+-   **addTrigger** | Function | Add events to a DOM element to show an Overlay on click
+-   **removeTrigger** | Function | Remove events from a DOM element Overlay trigger
+
+### Methods
+
+The following methods can be called statically on the default Overlay instance or on any new Overlay instance
+
+###### init
+
+Initializes the Overlay system. This is called automatically if document.body is available when Overlay is loaded
+
+-   Note: If you decide to include _overlay.js_ in the &lt;head&gt; you will need to call `Overlay.init()` at the bottom of the body or when the DOM is ready. This is because Overlay tries to automatically wire up triggers based on data attributes however document.body doesn't exist yet when included in the head
+
+###### destroy
+
+Destroys the Overlay system. It will need to be re-initialized before use again
+
+###### show
+
+Show an Overlay - Only **content** parameter is required, all other parameters are optional
+
+-   **content** | String element id or Element | Default: _undefined_ | Specify which id to show or pass a DOM element
+-   **options** | Object | Default: _undefined_ | Options object takes precedent over data attributes
+-   **callback** | Function | Default: _undefined_ | Callback is called after the Overlay is shown including transitions
 
 ```js
 //Show an overlay. Second and third parameters optional. See below for parameter info
-//First parameter can be an HTML element (document.createElement)
+//First parameter can be a String id or an HTML element (document.createElement)
 Overlay.show(
 	"myOverlay1",
 	{
-		containerClass: "slide-up"
+		width: "600px",
+		height: "50%",
+		offsetX: "-200px",
+		offsetY: "20%",
+		containerClass: "slide-down",
+		userClosable: "true",
+		autoFocus: "true",
+		immediate: "false"
 	},
 	myCallback
 );
+```
 
+OR
+
+```js
+var div = document.createElement("div");
+div.innerHTML = "Dynamic content";
+Overlay.show(div);
+```
+
+###### hide
+
+Hide the currently shown Overlay - Parameters are optional
+
+-   **callback** | Function | Default: _undefined_ | Callback is called after the Overlay is hidden including transitions
+
+```js
 //Hide the current overlay. Parameters optional
 Overlay.hide(myCallback);
 ```
 
-###### Full Api
+###### addTrigger
 
-```js
-/* Events */
-Overlay.EVENT_BEFORE_SHOW;
-Overlay.EVENT_AFTER_SHOW;
-Overlay.EVENT_BEFORE_HIDE;
-Overlay.EVENT_AFTER_HIDE;
+Add events to a DOM element to show an Overlay on click - Only **element** parameter is required, all other parameters are optional
 
-/* Properties */
-//By default the overlayContainer gets appended to the body
-//Set this to an html element to change where the overlayContainer is appended
-Overlay.container = document.getElementById("newContainer");
+-   **element** | DOM element | Default: _undefined_ | The element to trigger showing an Overlay on click
+-   **targetId** | String | Default: _undefined_ | The Overlay id to show, if left undefined will use _data-overlay-trigger_ or _href_ from the element
 
-/* Methods */
+###### removeTrigger
 
-//Called automatically
-Overlay.initialize();
+Remove events from a DOM element Overlay trigger - Parameters are required
 
-//Destroys the Overlay instance and will need to be reinitialized
-Overlay.destroy();
+-   **element** | DOM element | Default: _undefined_ | The element to trigger showing an Overlay on click
 
-//Hides the current overlay
-//Optional callback will fire after hidden
-Overlay.hide(callback);
+###### events
 
-//Shows an overlay. Second and third parameters are optional
-//Optional callback will fire after shown
-Overlay.show(
-	"{ID}",
-	{
-		//Override width
-		width: "500px",
-		//Override height
-		height: "100%",
-		//Offset x from center
-		offsetX: "-100px",
-		//Offset y from center
-		offsetY: "300px",
-		//Add classes to the container. Useful for animation and styling
-		containerClass: "slide-up my-special-modal",
-		//Disallow the user to close the modal
-		userClosable: false,
-		//Automatically focus on the first element in the modal after opening
-		autoFocus: true,
-		//Don't wait for transitions
-		immediate: true
-	},
-	callback
-);
-```
-
----
-
-#### Events
+If _immediate_ is set to true then these events will fire immediately rather than waiting for transitions
 
 ```js
 Overlay.addEventListener(Overlay.EVENT_BEFORE_SHOW, function(evt, detail) {
@@ -159,4 +224,59 @@ Overlay.addEventListener(Overlay.EVENT_BEFORE_HIDE, function(evt, detail) {
 Overlay.addEventListener(Overlay.EVENT_AFTER_HIDE, function(evt, detail) {
 	console.log("AFTER HIDE", detail);
 });
+```
+
+###### new instance
+
+Overlay uses a singleton pattern and by-default an instance is created and its methods are mapped statically to the Overlay object. However if you wish to show multiple Overlays layered on top of one another you can create other instances.
+
+```js
+var div = document.createElement("div");
+div.innerHTML = "Dynamic content - Lorem Ipsum Dolar";
+//Show single
+Overlay.show(div);
+
+//Multi-modal!
+var div2 = document.createElement("div");
+div2.innerHTML = "Some other content";
+//Show multiple
+var Overlay2 = new Overlay();
+Overlay2.init();
+Overlay2.show(div2);
+```
+
+### Notes on specific properties
+
+###### classPrefix
+
+You can change the classPrefix for all Overlay classes. This needs to be set before init, otherwise you will need to re-initialize. Because init is called automatically when Overlay is loaded you will need to re-initialize if you want to change this on the default Overlay instance
+
+```js
+Overlay.destroy();
+Overlay.classPrefix = "my-prefix-";
+Overlay.init();
+```
+
+OR
+
+```js
+var overlay2 = new Overlay();
+overlay2.classPrefix = "my-prefix-";
+overlay2.init();
+```
+
+###### requestCloseCallback
+
+Set this to a function. When the user attempts to close an Overlay this method will be called. Return false to prevent the Overlay from closing
+
+```js
+Overlay.requestCloseCallback = function(detail) {
+	console.log("requestCloseCallback", detail);
+
+	//Some logic
+	if (detail === "myOverlay1") {
+		return false; //Prevent the Overlay from closing
+	}
+	return true;
+};
 ```

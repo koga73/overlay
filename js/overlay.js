@@ -454,7 +454,7 @@
 
 		//Map back options set on static class to singleton
 		_update: function() {
-			if (_static._singleton){
+			if (_static._singleton) {
 				_static._singleton.classPrefix = window[_class].classPrefix;
 				_static._singleton.container = window[_class].container;
 				_static._singleton.pageWrap = window[_class].pageWrap;
@@ -534,7 +534,7 @@
 		var _instance;
 
 		var _vars = {
-			classPrefix:null,
+			classPrefix: null,
 			container: null,
 			pageWrap: null,
 			requestCloseCallback: null,
@@ -822,7 +822,7 @@
 				ClassHelper.addClass(content, classContent);
 				content.setAttribute("tabindex", "0");
 				//Add aria-label if missing
-				if (!content.hasAttribute("aria-label") && !content.hasAttribute("aria-labelled-by")) {
+				if (!content.hasAttribute("aria-label") && !content.hasAttribute("aria-labelledby")) {
 					content.setAttribute("aria-label", _consts.DEFAULT_ARIA_LABEL);
 				}
 
@@ -1148,16 +1148,17 @@
 			EVENT_BEFORE_HIDE: _events.EVENT_BEFORE_HIDE,
 			EVENT_AFTER_HIDE: _events.EVENT_AFTER_HIDE,
 
+			classPrefix: _vars.classPrefix,
 			container: _vars.container,
 			pageWrap: _vars.pageWrap,
 			requestCloseCallback: _vars.requestCloseCallback,
 
 			init: _methods.init,
 			destroy: _methods.destroy,
-			addTrigger: _methods.addTrigger,
-			removeTrigger: _methods.removeTrigger,
+			show: _methods.show,
 			hide: _methods.hide,
-			show: _methods.show
+			addTrigger: _methods.addTrigger,
+			removeTrigger: _methods.removeTrigger
 		};
 		return _instance;
 	};
