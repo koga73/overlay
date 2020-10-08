@@ -6,10 +6,10 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
 
-		<!-- Include Overlay.js styles -->
-		<link href="css/overlay.css" type="text/css" rel="stylesheet" />
+		<!-- Include overlay.css -->
+		<link href="../css/overlay.css" type="text/css" rel="stylesheet" />
 
-		<!-- Custom styles for each overlay -->
+		<!-- Page styles -->
 		<style type="text/css">
 			/* Simple reset */
 			* {
@@ -18,7 +18,6 @@
 				padding: 0;
 			}
 
-			/* Page styles */
 			a {
 				display: block;
 				margin: 16px;
@@ -27,48 +26,31 @@
 				width: 600px;
 				height: 400px;
 			}
-			#myOverlay2 {
-				width: 50%;
-				height: 50%;
-			}
-			#myOverlay3 {
-			}
 		</style>
 	</head>
 	<body>
-		<!-- Page content. Buttons to trigger overlays. "data-overlay-page-wrap" is used for trapping focus inside the overlay as an accessibility enhancement -->
-		<div id="container" data-overlay-page-wrap>
-			<a href="#myOverlay1" data-overlay-trigger>Slide Down</a>
-			<a href="#myOverlay2" data-overlay-trigger>Slide Left</a>
-			<a href="#myOverlay3" data-overlay-trigger>Open Immediately</a>
-			<a href="#myOverlay4" data-overlay-trigger>User can't close</a>
+		<!-- Page content container should have "data-overlay-page-wrap" -->
+		<!-- "data-overlay-page-wrap" attribute allows Overlay to trap focus when Overlay is open for accessibility -->
+		<div data-overlay-page-wrap>
+			<h1>Some Page Content</h1>
+			<a href="#myOverlay1" data-overlay-trigger>Open Overlay</a>
 		</div>
 
 		<!-- This container serves as a place for your overlays to live when they are not open -->
 		<div style="display:none;">
 			<!-- Each overlay needs an id -->
-			<div id="myOverlay1" data-overlay-container-class="slide-down">
-				<h1>Slide Down</h1>
-			</div>
-			<div id="myOverlay2" data-overlay-container-class="slide-left">
-				<h1>Slide Left</h1>
-			</div>
-			<div id="myOverlay3" data-overlay-immediate>
-				<h1>Open Immediately</h1>
-			</div>
-			<div id="myOverlay4" data-overlay-user-closable="false">
-				<h1>User cannot close this, most be closed programmatically</h1>
+			<div id="myOverlay1">
+				<h1>Overlay Content</h1>
 			</div>
 		</div>
 
 		<!-- Include overlay.js -->
-		<script src="js/overlay.js"></script>
-		<!-- Trigger overlay programmatically on load -->
+		<script src="../js/overlay.js"></script>
 		<script>
 			var div = document.createElement("div");
-			div.innerHTML = "Triggered programmatically";
+			div.innerHTML = "Dynamic content";
 			Overlay.show(div, {
-				containerClass: "slide-up"
+				containerClass: "slide-down"
 				//width:"50%",
 				//height:"50%",
 				//userClosable:false
