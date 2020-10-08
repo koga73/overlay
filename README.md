@@ -245,6 +245,8 @@ Overlay2.init();
 Overlay2.show(div2);
 ```
 
+---
+
 ### Notes on specific properties
 
 ###### classPrefix
