@@ -1,13 +1,13 @@
 {
 	"name": "@koga73/overlay",
-	"version": "3.0.0",
+	"version": "3.0.1",
 	"description": "A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. No Dependencies. Vanilla JS.",
 	"main": "js/overlay.js",
 	"module": "js/module.js",
 	"style": "css/overlay.css",
 	"scripts": {
 		"build": "npm run sass",
-		"sass": "node-sass --include-path ./css ./css/overlay.scss ./css/overlay.css --output-style compressed",
+		"sass": "sass ./css/overlay.scss ./css/overlay.css",
 		"watch": "nodemon -e sass,scss -x \"npm run sass\""
 	},
 	"repository": {
@@ -28,7 +28,7 @@
 	},
 	"homepage": "https://github.com/koga73/overlay#readme",
 	"devDependencies": {
-		"node-sass": "^4.14.1",
-		"nodemon": "^2.0.4"
+		"nodemon": "^2.0.4",
+		"sass": "^1.63.6"
 	}
 }

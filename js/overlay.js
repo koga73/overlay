@@ -1,9 +1,9 @@
 /*
- * Overlay v3.0.0 Copyright (c) 2020 AJ Savino
+ * Overlay v3.0.1 Copyright (c) 2020 AJ Savino
  * https://github.com/koga73/overlay
  * MIT License
  */
-(function() {
+(function () {
 	var _class = "Overlay";
 	var _classPrefix = _class.toLowerCase() + "-";
 
@@ -40,7 +40,7 @@
 	};
 
 	//Methods for listening when transition is complete
-	var TransitionHelper = (function() {
+	var TransitionHelper = (function () {
 		var transitionEvent = null;
 		var transitionPrefix = null;
 
@@ -60,7 +60,7 @@
 		} //else not supported
 
 		return {
-			hasTransition: function(element) {
+			hasTransition: function (element) {
 				if (typeof document.documentElement.currentStyle !== typeof undefined) {
 					//IE
 					return parseFloat(element.currentStyle[transitionPrefix + "transition-duration"]) > 0;
@@ -68,14 +68,14 @@
 					return parseFloat(window.getComputedStyle(element)[transitionPrefix + "transition-duration"]) > 0;
 				}
 			},
-			onTransitionComplete: function(element, callback) {
+			onTransitionComplete: function (element, callback) {
 				if (transitionEvent) {
 					EventHelper.addEventListener(element, transitionEvent, callback);
 				} else {
 					callback();
 				}
 			},
-			offTransitionComplete: function(element, callback) {
+			offTransitionComplete: function (element, callback) {
 				if (transitionEvent) {
 					if (typeof callback !== typeof undefined) {
 						EventHelper.removeEventListener(element, transitionEvent, callback);
@@ -88,16 +88,16 @@
 	})();
 
 	//Methods for add/remove/has class for IE8
-	var ClassHelper = (function() {
+	var ClassHelper = (function () {
 		//Trim shim
 		if (typeof String.prototype.trim !== "function") {
-			String.prototype.trim = function() {
+			String.prototype.trim = function () {
 				return this.replace(/^\s+|\s+$/g, "");
 			};
 		}
 
 		return {
-			addClass: function(element, classes) {
+			addClass: function (element, classes) {
 				var elementClasses = (element.getAttribute("class") || "").split(" ");
 				classes = classes.split(" ");
 				for (var className in classes) {
@@ -106,7 +106,7 @@
 				element.setAttribute("class", elementClasses.join(" ").trim());
 			},
 
-			removeClass: function(element, classes) {
+			removeClass: function (element, classes) {
 				var elementClasses = (element.getAttribute("class") || "").split(" ");
 				classes = classes.split(" ");
 				for (var className in classes) {
@@ -122,7 +122,7 @@
 				element.setAttribute("class", elementClasses.join(" ").trim());
 			},
 
-			hasClass: function(element, classes) {
+			hasClass: function (element, classes) {
 				var elementClasses = (element.getAttribute("class") || "").split(" ");
 				classes = classes.split(" ");
 				var hasCount = 0;
@@ -146,10 +146,10 @@
 
 	//Cross-browser custom object events supported down to IE8
 	//From: https://github.com/koga73/oop
-	var EventHelper = (function() {
+	var EventHelper = (function () {
 		var _methods = {
 			//Safe cross-browser event (use 'new EventHelper.Event()')
-			Event: function(type, detail) {
+			Event: function (type, detail) {
 				var event = null;
 				try {
 					//IE catch
@@ -174,7 +174,7 @@
 			},
 
 			//Adds event system to object
-			addEvents: function(obj, noAlias) {
+			addEvents: function (obj, noAlias) {
 				noAlias = noAlias === true;
 				if (!obj._eventHandlers) {
 					obj._eventHandlers = {};
@@ -202,7 +202,7 @@
 			},
 
 			//Removes event system from object
-			removeEvents: function(obj, noAlias) {
+			removeEvents: function (obj, noAlias) {
 				noAlias = noAlias === true;
 				if (obj._eventHandlers) {
 					delete obj._eventHandlers;
@@ -231,7 +231,7 @@
 
 			//Safe cross-browser way to listen for one or more events
 			//Pass obj, comma or whitespace delimeted event types, and a handler
-			addEventListener: function(obj, types, handler) {
+			addEventListener: function (obj, types, handler) {
 				//For some reason IE8 in compatibility mode calls addEventListener
 				if (typeof obj === typeof "") {
 					return;
@@ -249,7 +249,7 @@
 						obj.addEventListener(type, handler);
 					} else if (obj.attachEvent) {
 						//IE
-						var attachHandler = function() {
+						var attachHandler = function () {
 							handler(window.event);
 						};
 						attachHandler.handler = handler; //Store reference to original handler
@@ -268,13 +268,13 @@
 			},
 
 			//This is the custom method that gets added to objects
-			_addEventListener: function(type, handler) {
+			_addEventListener: function (type, handler) {
 				handler._isCustom = true;
 				_methods._addEventHandler(this, type, handler);
 			},
 
 			//Stores and returns handler reference
-			_addEventHandler: function(obj, type, eventHandler) {
+			_addEventHandler: function (obj, type, eventHandler) {
 				if (!obj._eventHandlers[type]) {
 					obj._eventHandlers[type] = [];
 				}
@@ -294,7 +294,7 @@
 			//Safe cross-browser way to listen for one or more events
 			//Pass obj, comma or whitespace delimeted event types, and optionally handler
 			//If no handler is passed all handlers for each event type will be removed
-			removeEventListener: function(obj, types, handler) {
+			removeEventListener: function (obj, types, handler) {
 				//For some reason IE8 in compatibility mode calls addEventListener
 				if (typeof obj === typeof "") {
 					return;
@@ -339,7 +339,7 @@
 			//This is the custom method that gets added to objects
 			//Pass comma or whitespace delimeted event types, and optionally handler
 			//If no handler is passed all handlers for each event type will be removed
-			_removeEventListener: function(types, handler) {
+			_removeEventListener: function (types, handler) {
 				types = types.split(/,|\s/);
 				var typesLen = types.length;
 				for (var i = 0; i < typesLen; i++) {
@@ -360,7 +360,7 @@
 			},
 
 			//Removes and returns handler reference
-			_removeEventHandler: function(obj, type, eventHandler) {
+			_removeEventHandler: function (obj, type, eventHandler) {
 				if (!obj._eventHandlers[type]) {
 					obj._eventHandlers[type] = [];
 				}
@@ -376,7 +376,7 @@
 			},
 
 			//Safe cross-browser way to dispatch an event
-			dispatchEvent: function(obj, event) {
+			dispatchEvent: function (obj, event) {
 				if (!obj._eventHandlers) {
 					obj._eventHandlers = {};
 				}
@@ -401,12 +401,12 @@
 			},
 
 			//This is the custom method that gets added to objects
-			_dispatchEvent: function(event) {
+			_dispatchEvent: function (event) {
 				_methods._dispatchEventHandlers(this, event);
 			},
 
 			//Dispatches an event to handler references
-			_dispatchEventHandlers: function(obj, event) {
+			_dispatchEventHandlers: function (obj, event) {
 				var eventHandlers = obj._eventHandlers[event.type];
 				if (!eventHandlers) {
 					return;
@@ -436,7 +436,7 @@
 		_focusin_handlerStack: [],
 		_keyup_handlerStack: [],
 
-		_init: function() {
+		_init: function () {
 			//Create singleton and expose methods statically on class
 			var singleton = new window[_class]();
 			singleton.init();
@@ -445,7 +445,7 @@
 			}
 			_static._singleton = singleton;
 		},
-		_destory: function() {
+		_destory: function () {
 			if (_static._singleton) {
 				_static._singleton.destroy();
 			}
@@ -453,7 +453,7 @@
 		},
 
 		//Map back options set on static class to singleton
-		_update: function() {
+		_update: function () {
 			if (_static._singleton) {
 				_static._singleton.classPrefix = window[_class].classPrefix;
 				_static._singleton.container = window[_class].container;
@@ -462,7 +462,7 @@
 			}
 		},
 
-		_addFocusin: function(method) {
+		_addFocusin: function (method) {
 			var focusinStack = _static._focusin_handlerStack;
 			var previousStackLen = focusinStack.length;
 			focusinStack.push(method);
@@ -472,7 +472,7 @@
 				EventHelper.addEventListener(document, "focusin", _static._handler_document_focusin);
 			}
 		},
-		_removeFocusin: function(method) {
+		_removeFocusin: function (method) {
 			var focusinStack = _static._focusin_handlerStack;
 			var focusinStackLen = focusinStack.length;
 			for (var i = 0; i < focusinStackLen; i++) {
@@ -487,7 +487,7 @@
 				EventHelper.removeEventListener(document, "focusin", _static._handler_document_focusin);
 			}
 		},
-		_handler_document_focusin: function(evt) {
+		_handler_document_focusin: function (evt) {
 			var focusinStack = _static._focusin_handlerStack;
 			var focusinStackLen = focusinStack.length;
 			if (focusinStackLen) {
@@ -495,7 +495,7 @@
 			}
 		},
 
-		_addKeyup: function(method) {
+		_addKeyup: function (method) {
 			var keyupStack = _static._keyup_handlerStack;
 			var previousStackLen = keyupStack.length;
 			keyupStack.push(method);
@@ -505,7 +505,7 @@
 				EventHelper.addEventListener(document, "keyup", _static._handler_document_keyup);
 			}
 		},
-		_removeKeyup: function(method) {
+		_removeKeyup: function (method) {
 			var keyupStack = _static._keyup_handlerStack;
 			var keyupStackLen = keyupStack.length;
 			for (var i = 0; i < keyupStackLen; i++) {
@@ -520,7 +520,7 @@
 				EventHelper.removeEventListener(document, "keyup", _static._handler_document_keyup);
 			}
 		},
-		_handler_document_keyup: function(evt) {
+		_handler_document_keyup: function (evt) {
 			var keyupStack = _static._keyup_handlerStack;
 			var keyupStackLen = keyupStack.length;
 			if (keyupStackLen) {
@@ -530,7 +530,7 @@
 	};
 
 	//Instance!
-	window[_class] = function() {
+	window[_class] = function () {
 		var _instance;
 
 		var _vars = {
@@ -557,7 +557,7 @@
 
 		var _methods = {
 			//Create our DOM elements
-			init: function(scopeElement) {
+			init: function (scopeElement) {
 				if (typeof scopeElement === typeof undefined) {
 					scopeElement = document.body || null;
 				}
@@ -621,27 +621,16 @@
 			},
 
 			//Remove our DOM elements
-			destroy: function() {
+			destroy: function () {
 				_vars._initialized = false;
 
 				//Remove document events
 				_static._removeFocusin(_methods._handler_document_focusin);
 				_static._removeKeyup(_methods._handler_document_keyup);
 
-				//Unwire triggers
-				var scopeElement = _vars._scopeElement;
-				if (scopeElement) {
-					var anchorTriggers = scopeElement.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
-					var anchorTriggersLen = anchorTriggers.length;
-					for (var i = 0; i < anchorTriggersLen; i++) {
-						_instance.removeTrigger(anchorTriggers[i]);
-					}
-				}
-				_vars._scopeElement = null;
-
 				//Restore state
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.removeClass(document.body, classBodyVisible);
+				ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
 				_methods._focusRestore();
 				_methods._resetContent();
 				_vars._showCallback = null;
@@ -679,10 +668,21 @@
 					}
 				}
 				_vars._container = null;
+
+				//Unwire triggers
+				var scopeElement = _vars._scopeElement;
+				if (scopeElement) {
+					var anchorTriggers = scopeElement.querySelectorAll("[" + _consts.DATA_TRIGGER + "]");
+					var anchorTriggersLen = anchorTriggers.length;
+					for (var i = 0; i < anchorTriggersLen; i++) {
+						_instance.removeTrigger(anchorTriggers[i]);
+					}
+				}
+				_vars._scopeElement = null;
 			},
 
 			//Make element trigger show
-			addTrigger: function(element, targetId) {
+			addTrigger: function (element, targetId) {
 				targetId = targetId || null;
 				if (!targetId) {
 					//Grab target from _consts.DATA_TRIGGER or href
@@ -696,7 +696,7 @@
 					}
 				}
 				//Add event listener
-				EventHelper.addEventListener(element, "click", function(evt) {
+				EventHelper.addEventListener(element, "click", function (evt) {
 					if (typeof evt.preventDefault !== typeof undefined) {
 						evt.preventDefault();
 					} else {
@@ -708,12 +708,12 @@
 			},
 
 			//Remove element triggering show
-			removeTrigger: function(element) {
+			removeTrigger: function (element) {
 				EventHelper.removeEventListener(element, "click");
 			},
 
 			//Show an id or DOM element
-			show: function(content, options, callback) {
+			show: function (content, options, callback) {
 				if (!_vars._initialized) {
 					throw new Error(_class + " is not initialized. To fix call init()");
 				}
@@ -730,12 +730,12 @@
 				}
 				_vars._showCallback = callback;
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.addClass(document.body, classBodyVisible);
+				ClassHelper.addClass(_vars._scopeElement, classBodyVisible);
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_BEFORE_SHOW, {content: content.id || content}));
 
 				//Hide current
 				if (_vars._content != null) {
-					_instance.hide(function() {
+					_instance.hide(function () {
 						//Callback chaining
 						_instance.show(content, options, callback);
 					});
@@ -888,8 +888,8 @@
 
 				//Append container
 				if (!_instance.container) {
-					if (document.body) {
-						_instance.container = document.body;
+					if (_vars._scopeElement) {
+						_instance.container = _vars._scopeElement;
 					} else {
 						throw new Error("Container is undefined");
 					}
@@ -905,7 +905,7 @@
 
 				//Add containerClass
 				ClassHelper.addClass(container, containerClass);
-				var timeout = setTimeout(function() {
+				var timeout = setTimeout(function () {
 					//Delay needed for transition to render
 					clearTimeout(timeout);
 					var classFrameVisible = _instance.classPrefix ? _consts.CLASS_FRAME_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_FRAME_VISIBLE;
@@ -925,7 +925,7 @@
 			},
 
 			//Hide what is currently shown
-			hide: function(callback) {
+			hide: function (callback) {
 				if (!_vars._initialized) {
 					throw new Error(_class + " is not initialized. To fix call init()");
 				}
@@ -966,7 +966,7 @@
 			},
 
 			//Save focus, accessibility focus trap, set focus to first focusable item
-			_focusTrap: function(appendContainer, content, autoFocus) {
+			_focusTrap: function (appendContainer, content, autoFocus) {
 				autoFocus = autoFocus === true;
 
 				//Events
@@ -995,7 +995,7 @@
 			},
 
 			//Remove accessibility focus trap and restore focus
-			_focusRestore: function() {
+			_focusRestore: function () {
 				//Events
 				_static._removeFocusin(_methods._handler_document_focusin);
 
@@ -1015,7 +1015,7 @@
 			},
 
 			//Put the content back where it used to be after hiding
-			_resetContent: function() {
+			_resetContent: function () {
 				var content = _vars._content;
 				if (content) {
 					content.parentNode.removeChild(content);
@@ -1042,7 +1042,7 @@
 			},
 
 			//Called when show transition is complete
-			_handler_show_complete: function() {
+			_handler_show_complete: function () {
 				TransitionHelper.offTransitionComplete(_vars._container);
 
 				var content = _vars._content;
@@ -1055,7 +1055,7 @@
 			},
 
 			//Called when hide transition is complete
-			_handler_hide_complete: function() {
+			_handler_hide_complete: function () {
 				var container = _vars._container;
 				TransitionHelper.offTransitionComplete(container);
 
@@ -1072,7 +1072,7 @@
 				_methods._focusRestore();
 
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.removeClass(document.body, classBodyVisible);
+				ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_AFTER_HIDE, {content: content.id || content}));
 				var hideCallback = _vars._hideCallback;
 				if (typeof hideCallback !== typeof undefined) {
@@ -1082,7 +1082,7 @@
 			},
 
 			//On click close button
-			_handler_close_click: function(evt) {
+			_handler_close_click: function (evt) {
 				if (typeof evt.preventDefault !== typeof undefined) {
 					evt.preventDefault();
 				} else {
@@ -1093,7 +1093,7 @@
 			},
 
 			//On click background
-			_handler_background_click: function(evt) {
+			_handler_background_click: function (evt) {
 				if (typeof evt.preventDefault !== typeof undefined) {
 					evt.preventDefault();
 				} else {
@@ -1104,7 +1104,7 @@
 			},
 
 			//On escape key
-			_handler_document_keyup: function(evt) {
+			_handler_document_keyup: function (evt) {
 				//Escape
 				if (evt.keyCode == 27) {
 					_methods._requestClose();
@@ -1112,7 +1112,7 @@
 			},
 
 			//The user has requested closing, notify our callback if present
-			_requestClose: function() {
+			_requestClose: function () {
 				if (_instance.requestCloseCallback) {
 					var content = _vars._content;
 					var result = _instance.requestCloseCallback(content.id || content);
@@ -1125,7 +1125,7 @@
 			},
 
 			//When an element gets focus, make sure we trap to currently shown
-			_handler_document_focusin: function(evt) {
+			_handler_document_focusin: function (evt) {
 				var target = evt.target || evt.srcElement;
 				var frame = _vars._frame;
 				if (target != frame && !frame.contains(target)) {
