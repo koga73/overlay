@@ -1,5 +1,5 @@
 /*
- * Overlay v3.0.1 Copyright (c) 2020 AJ Savino
+ * Overlay v3.0.2 Copyright (c) 2023 AJ Savino
  * https://github.com/koga73/overlay
  * MIT License
  */
@@ -557,7 +557,7 @@
 
 		var _methods = {
 			//Create our DOM elements
-			init: function (scopeElement) {
+			init: function (scopeElement, dontAutoWire) {
 				if (typeof scopeElement === typeof undefined) {
 					scopeElement = document.body || null;
 				}
@@ -598,7 +598,7 @@
 				EventHelper.addEvents(_instance);
 
 				//Auto-wire container, page wrap, triggers based on data attributes
-				if (scopeElement) {
+				if (scopeElement && dontAutoWire !== true) {
 					var container = scopeElement.querySelector("[" + _consts.DATA_CONTAINER + "]");
 					if (container) {
 						_instance.container = container;
@@ -630,7 +630,9 @@
 
 				//Restore state
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
+				if (_vars._scopeElement) {
+					ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
+				}
 				_methods._focusRestore();
 				_methods._resetContent();
 				_vars._showCallback = null;
@@ -730,7 +732,9 @@
 				}
 				_vars._showCallback = callback;
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.addClass(_vars._scopeElement, classBodyVisible);
+				if (_vars._scopeElement) {
+					ClassHelper.addClass(_vars._scopeElement, classBodyVisible);
+				}
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_BEFORE_SHOW, {content: content.id || content}));
 
 				//Hide current
@@ -979,7 +983,7 @@
 				var pageWrap = _instance.pageWrap;
 				if (pageWrap) {
 					if (pageWrap.contains(appendContainer)) {
-						throw "Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the container. They should be siblings instead.";
+						throw new Error("Error: The page wrapper [" + _consts.DATA_PAGE_WRAP + "] should not contain the container. They should be siblings instead.");
 					} else {
 						pageWrap.setAttribute("aria-hidden", "true");
 						pageWrap.setAttribute("tabindex", "-1");
@@ -1072,7 +1076,9 @@
 				_methods._focusRestore();
 
 				var classBodyVisible = _instance.classPrefix ? _consts.CLASS_BODY_VISIBLE.replace(_classPrefix, _instance.classPrefix) : _consts.CLASS_BODY_VISIBLE;
-				ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
+				if (_vars._scopeElement) {
+					ClassHelper.removeClass(_vars._scopeElement, classBodyVisible);
+				}
 				EventHelper.dispatchEvent(_instance, new EventHelper.Event(_instance.EVENT_AFTER_HIDE, {content: content.id || content}));
 				var hideCallback = _vars._hideCallback;
 				if (typeof hideCallback !== typeof undefined) {
