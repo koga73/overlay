@@ -1,5 +1,5 @@
 /*
- * Overlay v3.0.2 Copyright (c) 2023 AJ Savino
+ * Overlay v3.0.3 Copyright (c) 2024 AJ Savino
  * https://github.com/koga73/overlay
  * MIT License
  */
@@ -167,9 +167,9 @@
 						//Custom
 						event = {};
 					}
+					event.type = type;
+					event.detail = detail;
 				}
-				event.type = type;
-				event.detail = detail;
 				return event;
 			},
 
