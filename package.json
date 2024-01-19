@@ -1,6 +1,6 @@
 {
 	"name": "@koga73/overlay",
-	"version": "3.0.2",
+	"version": "3.0.3",
 	"description": "A simple responsive modal system for the web. Works down to IE8. Accessible by screen readers. Easy to customize. No Dependencies. Vanilla JS.",
 	"main": "js/overlay.js",
 	"module": "js/module.js",
